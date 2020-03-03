@@ -1,0 +1,9 @@
+function p = not_permutation(target_weight, indices)
+p=indices;
+n_rows = length(p)/(target_weight*2);
+for i = 1:n_rows:length(p)/2
+    for j = 1:n_rows/2
+    
+    end 
+end
+end
