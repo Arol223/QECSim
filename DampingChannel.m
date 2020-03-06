@@ -1,14 +1,14 @@
-% Defines general damping behaviour. Takes a damping coefficient.
+% Defines general class for damping channels. Takes a damping coefficient.
 % Form of these can be found in Nielsen and Chuang chapter 8.
 
 classdef DampingChannel < handle
     
     properties
-        DampingCoeff
+        DampingCoeff % For amplitude damping this would be gamma.
     end
     
     properties(Abstract)
-       operation_elements 
+       operation_elements % Form depends on specific dampng behaviour.
     end
     
     methods
@@ -26,6 +26,9 @@ classdef DampingChannel < handle
         end
         
         function State = apply_channel(obj, nstate, targets)
+            % Used to apply error to state, which can be defined either by
+            % a density matrix or an instance of NbitState. Returns a
+            % density matrix.
             if ~(isa(nstate,'NbitState')|| ismatrix(nstate))
                 error('nstate must be an NbitState, a subclass thereof or a matrix')
             end
@@ -47,6 +50,9 @@ classdef DampingChannel < handle
         end
         
         function op = nbit_op_element(obj, element_number, targets, tot_bits)
+            % Used to construct an operation element for a multi qubit
+            % density matrix. targets is a vector containing indices of
+            % bits to be affected by error. 
             element = obj.operation_elements(:,:,element_number);
             pre_op = zeros(2,2,tot_bits);
             for i = 1:tot_bits

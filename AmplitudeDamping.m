@@ -12,6 +12,7 @@ classdef AmplitudeDamping < DampingChannel
         end
         
         function val = get.operation_elements(obj)
+            % Operation elements as defined in Nielsen and Chuang ch. 8
             gamma = obj.DampingCoeff;
             val(:,:,1) = [1 0; 0 sqrt(1-gamma)];
             val(:,:,2) = [0 sqrt(gamma);0 0];

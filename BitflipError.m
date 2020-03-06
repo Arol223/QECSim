@@ -12,7 +12,7 @@ classdef BitflipError < QuantumErrorChannel
         end
        
         function val = get.operation_elements(obj)
-           val = sqrt(obj.probability)*[0 1;1 0]; 
+           val = sqrt(obj.probability)*[0 1;1 0]; % Has only one operation element, Pauli X
         end
         
     end
