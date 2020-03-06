@@ -78,9 +78,14 @@ else
   % reshape again so that first two indices are row and column
   % multi-indices for kept subsystems and third index is a flattened index
   % for traced subsystems, then sum third index over "diagonal" entries
+  if issparse(p)
+      p = full(p);
+  end
   perm = n+1-[keep(end:-1:1),keep(end:-1:1)-n,sys,sys-n];
   x = reshape(permute(reshape(p,[rdim,rdim]),perm),...
               [dimkeep,dimkeep,dimtrace^2]);
   x = sum(x(:,:,[1:dimtrace+1:dimtrace^2]),3);
-
+  if nnz(x) < size(x,1)*size(x,2)/2
+      x = sparse(x);
+  end
 end

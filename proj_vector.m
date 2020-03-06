@@ -1,7 +1,10 @@
 % Builds a vector that can be used for projective mesurements or projecting
 % density matrices given that the qubit specified by target is 0 or 1,
 % as specified in val. As with all other functions in this suite, the
-%  leftmost qubit, i.e. the msb, in a ket is taken to be bit number 1. 
+%  leftmost qubit, i.e. the msb, in a ket is taken to be bit number 1.
+%  Qubits in circuits are counted from top to bottom, regardless if the top
+%  block is an ancilla or data block. the top qubit is always counted as
+%  bit number 1, and is also the msb. 
 function p = proj_vector(nbits, target, val)
     max = 2^nbits;
     bit_exp = nbits-target;

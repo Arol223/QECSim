@@ -1,0 +1,25 @@
+% A container class used to specify noise operations. Add operation
+% elements without probabilities as this enables tuning. Elements are
+% specified in ndarray
+classdef QuantumNoise < handle
+    properties
+        nbits
+        probabilities
+        operation_elements
+    end
+    
+    methods
+        function obj = QuantumNoise(nbits, probabilities, operation_elements)
+            obj.probabilities = probabilities;
+            obj.nbits = nbits; % E.g a 2 qubit operation
+            obj.operation_elements = operation_elements;
+        end
+        
+        function State = apply_noise(obj, nstate, targets)            
+            if ~isa(nstate, 'NbitState')
+                error('Please specify an NbitState to be affected by noise')
+            end
+            
+        end
+    end
+end

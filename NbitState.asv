@@ -81,30 +81,40 @@ classdef NbitState < handle
         
         function extend_state(obj, oth, pos)
             % Extends the state with density matrix rho, could be used for e.g
-        % adding ancilla bits.
-            rho_1 = obj.rho;
+            % adding ancilla bits.
             if isa(oth,'NbitState')
-                rho_2 = oth.rho;
                 if strcmp(pos,'end')
-                    obj.rho = kron(rho_1,rho_2);
+                    obj.rho = kron(obj.rho,oth.rho);
                 elseif strcmp(pos, 'start')
-                    obj.rho = kron(rho_2,rho_1);
+                    obj.rho = kron(oth.rho,obj.rho);
                 end
-            
+                
             elseif ismatrix(oth)
-                if strcmp(pos,'end')                    
-                    obj.rho = kron(rho_1, oth);
+                if strcmp(pos,'end')
+                    obj.rho = kron(obj.rho, oth);
                 elseif strcmp(pos, 'start')
-                    obj.rho = kron(oth,rho_1);
+                    obj.rho = kron(oth,obj.rho);
                 end
+            else
+                error('Input has to be either derived from NbitState or be a matrix')
+            end
+            %spy(obj.rho)
         end
         
+        function trace_out_A(obj, dim_a, dim_b)
+           obj.rho =  bipartite_partial_trace(obj.rho,dim_a,dim_b);
+        end
         
+        % TODO: This doesn't work, try to fix if time exists|| fixed
         function trace_out_bits(obj, bit_nbrs)
-        % Traces out the bits specified in bit_nbrs. See
-        % qubit_partial_trace.m for implementation details and algorithm
-        % source. TODO: verify algorithm :o...
-            obj.rho = qubit_partial_trace(obj.rho, bit_nbrs);
+            % Traces out the bits specified in bit_nbrs. See
+            % TrX for implementation details and source. 
+            obj.rho = TrX(obj.rho, bit_nbrs, 2*ones(1, obj.nbits));
+        end
+        
+        function trace_out_system(obj, sys, dim)
+            % Trace out system 
+            obj.rho = TrX(obj.rho, sys, dim);
         end
         
         function operation(obj, operator)

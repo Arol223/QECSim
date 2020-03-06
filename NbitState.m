@@ -73,7 +73,7 @@ classdef NbitState < handle
         end
         
         
-        % Performs arbitrary unitary operation
+        % Performs arbitrary unitary operation, overloads .*.
         function t = times(obj, op)
             t = op*obj.rho*op';
         end
@@ -81,7 +81,9 @@ classdef NbitState < handle
         
         function extend_state(obj, oth, pos)
             % Extends the state with density matrix rho, could be used for e.g
-            % adding ancilla bits.
+            % adding ancilla bits. 
+            % Ex: If state a is described by density matrix s, 
+            % a.extend_state(p,'start') = pxs where x is the kronecker product. 
             if isa(oth,'NbitState')
                 if strcmp(pos,'end')
                     obj.rho = kron(obj.rho,oth.rho);
@@ -98,24 +100,32 @@ classdef NbitState < handle
             else
                 error('Input has to be either derived from NbitState or be a matrix')
             end
-            spy(obj.rho)
+            %spy(obj.rho)
         end
         
-        function trace_out_A(obj, dim_a, dim_b)
-           obj.rho =  bipartite_partial_trace(obj.rho,dim_a,dim_b);
-        end
         
-        % TODO: This doesn't work, try to fix if time exists
+        % TODO: This doesn't work, try to fix if time exists|| fixed
         function trace_out_bits(obj, bit_nbrs)
             % Traces out the bits specified in bit_nbrs. See
             % TrX for implementation details and source. 
             obj.rho = TrX(obj.rho, bit_nbrs, 2*ones(1, obj.nbits));
         end
         
+        function trace_out_system(obj, sys, dim)
+            % Trace out system number sys. Dim is a vector containing the
+            % dimensions of all subsystems. See TrX for implementation
+            % details. 
+            obj.rho = TrX(obj.rho, sys, dim);
+        end
+        
         function operation(obj, operator)
-            % Performs an operatio on the form U*rho*U*, U given by
+            % Performs an operatio. on the form U*rho*U*, U given by
             % operator in matrix form.
             obj.rho = operator*obj.rho*operator';
+        end
+        
+        function noisy_gate(obj, op, error)
+            
         end
     end
     

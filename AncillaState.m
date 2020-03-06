@@ -9,9 +9,7 @@ classdef AncillaState < NbitState
             if bit < 1 || bit > obj.nbits
                 error('Specify a bit between 1 and nbits')
             end
-            proj_0 = proj_vector(obj.nbits, bit, 0); % Projection vector where the specified bit is 0
-            
-            p_0 = proj_0'*obj.rho*proj_0;    % Probability to measure the bit in 0
+            p_0 = measure_prob(obj.rho, bit, 0, obj.nbits);    % Probability to measure the bit in 0
             d_roll = rand(1,1);
             if d_roll <= p_0 % Makes
                 val = 0;
@@ -34,6 +32,7 @@ classdef AncillaState < NbitState
             spy(obj.rho)
             obj.rho = proj*obj.rho*proj';
             obj.rho = obj.rho/trace(obj.rho);
+            spy(obj.rho)
             
             
         end
@@ -53,8 +52,9 @@ classdef AncillaState < NbitState
         end
         
         function prep_cat_state(obj, nbits)
-             % Follows circuit from: https://arxiv.org/pdf/0905.2794.pdf?source=post_page---------------------------
-             % Works 100% for Steane code, need to verify it works for more ancillas...
+            % Follows circuit from: https://arxiv.org/pdf/0905.2794.pdf?source=post_page---------------------------
+            % Fig 16 p.29. 
+            % Works 100% for Steane code, need to verify it works for more ancillas...
             m = 1;                          
             H_2 = H_i(2, nbits+1); % Hadamard acting on bit 2            
             controls = [2,2,3:nbits, nbits+1];

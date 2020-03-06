@@ -20,16 +20,38 @@ classdef StabiliserState < NbitState
         end
         
         function eig = measure_generator(obj, gen_nbr)
-            weight = obj.stabiliser_code.stab_weight;
+            % Measures the generator gen_nbr. The generators are specified
+            % in a StabiliserCode object in the form 'IIIXXXX', that is
+            % required to create an instance of this class. See 
+            % https://arxiv.org/pdf/0905.2794.pdf?source=post_page---------------------------
+            % Fig.16 p29 for an example circuit diagram specific to the
+            % steane code
+            
+            weight = obj.stabiliser_code.stab_weight; % Weight of the stabiliser, i.e. number of non-identity operations.
+            %------------Ancilla preparation---------------------
             a = AncillaState();
-            a.prep_cat_state(weight)
-            a.extend_state(obj,'end');
-            CGen = obj.stabiliser_code.cstabiliser(gen_nbr);
+            a.prep_cat_state(weight) % Verified, cat state example: |0000> + |1111>
+            a.extend_state(obj,'end'); % Tensor product of data block with ancilla block
+            %------------Applying the generator operation----------------
+            % Middle block in example circuit
+            CGen = obj.stabiliser_code.cstabiliser(gen_nbr); % Matrix for controlled form of stabiliser
             a.operation(CGen);
-            a.paired_CNOT('bot', weight);
+            spy(a.rho)
+            
+            %-------------Readout---------------------
+            % Last block in example circuit
+            readout_controls = 3:-1:1; %Specific to Steane Code measurements
+            readout_targets = 4:-1:2;
+            readout_cnot = knCNOT(readout_controls,readout_targets,a.nbits);
+            a.operation(readout_cnot);
+            spy(a.rho)
             a.operation(H_i(1,a.nbits));
+            spy(a.rho)
             eig = a.measure_bit(1);
-            a.trace_out_bits(1:weight)
+            spy(a.rho)
+            %-------------Tracing out ancilla--------------
+            a.trace_out_system(1, [2^weight, 2^(a.nbits-weight)])
+            spy(a.rho)
             obj.rho = a.rho;
         end
         
@@ -63,6 +85,7 @@ classdef StabiliserState < NbitState
             Z = [1 0;0 -1];
             Z = extend_operator(Z, ind, obj.nbits);
             obj.operation(Z)
+            spy(obj.rho)
         end
         
         

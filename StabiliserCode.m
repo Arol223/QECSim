@@ -58,6 +58,8 @@ classdef StabiliserCode
         % Matrix form of the controlled generator i, used for measurements
         % etc.
         function c_stab = cstabiliser(obj,i)
+            % Creates a controlled version of the stabiliser used for
+            % readouts. 
             if i < 1 || i > obj.n_stabilisers
                 error('Index i out of bounds')
             end
@@ -65,26 +67,27 @@ classdef StabiliserCode
             tot_bits = obj.nbits + weight;
             gen = obj.stabilisers(i,:);
             c_stab = speye(2^tot_bits);
-            gen_count = 1; % Keep track of which bit to use as control
-            for j = 1:obj.nbits
-                if gen_count > weight
+            control = weight; % Keep track of which bit to use as control. Follows Fig.16 p29 of https://arxiv.org/pdf/0905.2794.pdf?source=post_page---------------------------
+            for j = 1:obj.nbits % but the bit at top of circuit is counted as bit nbr 1, msb.
+                if control < 1
                     break
                 end
                 
                 if gen(j) == 'I'
                     continue
                 elseif gen(j) == 'X'
-                    c_stab = c_stab*kCNOT(gen_count,j+weight,tot_bits);
-                    gen_count = gen_count + 1;
+                    c_stab = c_stab*kCNOT(control,j+weight,tot_bits);
+                    control = control - 1;
                 elseif gen(j) == 'Y'
-                    c_stab = c_stab*kCY(gen_count,j+obj.weight,tot_bits);
-                    gen_count = gen_count + 1;
+                    c_stab = c_stab*kCY(control,j+obj.weight,tot_bits);
+                    control = control - 1;
                 elseif gen(j) == 'Z'
-                    c_stab = c_stab*kCZ(gen_count,j+weight,tot_bits);
-                    gen_count = gen_count + 1;
+                    c_stab = c_stab*kCZ(control,j+weight,tot_bits);
+                    control = control - 1;
                 end
-                c_stab = c_stab'; % Transpose because of the qubit counting convention used. This reverses the order of operations
+                
             end
+           % c_stab = c_stab'; % Transpose because of the qubit counting convention used. This reverses the order of operations
         end
         
         % Displays the i:th stabiliser as e.g. 'XXXZZII'
