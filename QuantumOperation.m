@@ -1,0 +1,3 @@
+classdef QuantumOperation < handle
+    
+end
