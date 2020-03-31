@@ -1,5 +1,7 @@
 %% Test state preparation
-
+import States.*
+import Operations.*
+import GeneralMaths.*
 cat = zeros(2^4,1);
 cat(1) = 1;
 cat(end) = 1;

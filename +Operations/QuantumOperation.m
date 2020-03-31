@@ -36,7 +36,7 @@ classdef QuantumOperation < handle
             end
             if isa(nstate, 'NbitState')
                 rho_i = nstate.rho;
-                rho = rho_i;
+                rho = zeros(size(rho_i));
                 tot_bits = nstate.nbits;
             else
                 rho_i = nstate;
