@@ -2,6 +2,7 @@
 % controls. Returns both the operator in matrix form and the permutation
 % vector. 
 function [kCNOT, p] = kCNOT(controls, target, nbits)
+import Operations.GateFunctions.alltrue
 nrows = 2^nbits;
 kCNOT = speye(nrows);
 target_exp = nbits-target;
