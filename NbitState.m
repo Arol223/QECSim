@@ -119,13 +119,20 @@ classdef NbitState < handle
         end
         
         function operation(obj, operator)
-            % Performs an operatio. on the form U*rho*U*, U given by
+            % Performs an operation on the form U*rho*U*, U given by
             % operator in matrix form.
             obj.rho = operator*obj.rho*operator';
         end
         
-        function noisy_gate(obj, op, error)
-            
+        function noisy_operation(obj, op, noise, targets)
+            if nargin < 2
+                obj.operation(op)
+            elseif ~isa(noise, 'QuantumErrorChannel')
+                error("Noise has to be empty or instance of QuantumErrorChannel")
+            else
+               obj.operation(op);
+               obj.rho = noise.apply_error(obj.rho, targets);
+            end
         end
     end
     
