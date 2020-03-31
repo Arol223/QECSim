@@ -128,7 +128,7 @@ classdef NbitState < handle
             if nargin < 2
                 obj.operation(op)
             elseif ~isa(noise, 'QuantumErrorChannel')
-                error("Noise has to be empty or instance of QuantumErrorChannel")
+                error('Noise has to be empty or instance of QuantumErrorChannel')
             else
                obj.operation(op);
                obj.rho = noise.apply_error(obj.rho, targets);
