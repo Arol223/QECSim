@@ -23,7 +23,8 @@ classdef StabiliserCode
             % Constructor. Requires number of bits (nbits), number of
             % encoded bits (encoded_bits), distance of the code,
             % stabilisers as a struct, logical operators as struct, and the
-            % weight of the stabilisers.
+            % weight of the stabilisers, i.e. the number of operators in 
+            % the stabiliser that are not the identity.
             obj.nbits = nbits;
             obj.encoded_bits = encoded_bits;
             obj.n_stabilisers = nbits - encoded_bits;
@@ -44,7 +45,7 @@ classdef StabiliserCode
             I = speye(2);
             X = sparse([0 1;1 0]);
             Y = sparse([0 -1i;1i 0]);
-            Z = ([1 0; 0 -1]);
+            Z = sparse([1 0; 0 -1]);
             pre = {};
             for s = components
                 if s == 'I'
