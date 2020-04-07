@@ -14,9 +14,6 @@ classdef NbitState < handle
         
         %Constructor, takes argument initial number of bits nbits_i
         function obj = NbitState(rho)
-            import GeneralMaths.*
-            import Operations.QuantumOperations.*
-            import Operations.GateFunctions.*
             if nargin == 1
                 obj.rho = rho;
             end
@@ -69,16 +66,24 @@ classdef NbitState < handle
         end
         
         
-        function init_all_zeros(obj, nbits)
-            % Initialise the register with 0 in every position
-            obj.rho = sparse(zeros(2^nbits));
-            obj.rho(1,1) = 1;
+        function init_all_zeros(obj, nbits, init_error)
+            % Initialise the register with 0 in every position with
+            % initialisation error. 
+            p_0 = 1 - init_error; % Prob to be initialised in 0
+            p_1 = init_error; % -||- 1
+            el = sparse([p_0 0; 0 p_1]);
+            obj.rho = el;
+            for i = 1:nbits-1
+                obj.rho = kron(obj.rho, el);
+            end
         end
         
         
         % Performs arbitrary unitary operation, overloads .*.
-        function t = times(obj, op)
-            t = op*obj.rho*op';
+        function times(obj, op)
+            if ismatrix(op) 
+                obj.rho =  op*obj.rho*op';
+            end
         end
         
         
