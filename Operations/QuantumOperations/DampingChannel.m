@@ -1,5 +1,8 @@
 % Defines general class for damping channels. Takes a damping coefficient.
 % Form of these can be found in Nielsen and Chuang chapter 8.
+% Needs a separate class from other operations since the operation doesn't
+% have individual weights for the elements but rather a damping coefficient
+% that appears only in specific matrix elements. 
 
 classdef DampingChannel < handle
     
