@@ -1,22 +1,31 @@
 classdef QuantumGate<handle
     
-    properties 
-       controlled;
-    end
-    
     properties (Abstract)
-        % Pure op is e.g. a perfect CNOT, while real is what would happen
-        % in reality. Reak op would thus depend on the specific system
-        % modelled etc.
-        pure_op;
+        % Fidelity is self-evident. Controlled should be true if it's a
+        % controlled gate, false otherwise. Operation_time can be used to
+        % calculate decoherence and amplitude damping for bits left out of
+        % the operation. target errors and control errors are the errors
+        % affecting the target and control bits respectively. error_weights
+        % say how strong each error should be. 
+        controlled;
+        fidelity;
+        operation_time;
         target_errors;
         control_errors;
+        p_eij;
+    end
+    
+    methods (Abstract)
+        res = pure_operation(obj, nbitstate, targets, controls)
+        res = apply_errors(obj, nbitstate, targets, controls)
     end
     
     methods
         
         function obj = QuantumGate()    
         end
+        
+        
         
         function rho = apply(obj, nbitstate, targets, controls)
             % Applies the gate to a matrix or an NbitState. if real is true
@@ -32,7 +41,12 @@ classdef QuantumGate<handle
             end
             
             
-            
+            rho_exact = obj.pure_operation(nbitstate, targets, controls);
+            spy(rho_exact)
+            rho_error = obj.apply_errors(nbitstate, targets, controls);
+            spy(rho_error)
+            rho = rho_exact+rho_error;
+            spy(rho)
         end
         
     end
