@@ -25,7 +25,7 @@ classdef QuantumErrorChannel < handle
             pre_op = zeros(2,2,tot_bits);
             for i = 1:tot_bits
                 if ismember(i,targets)
-                    pre_op(:,:,i) = element;
+                    pre_op(:,:,i) = sparse(element);
                 else
                     pre_op(:,:,i) = speye(2);
                 end
@@ -33,7 +33,7 @@ classdef QuantumErrorChannel < handle
             op = tensor_product(pre_op);
         end
         
-        function rho = apply_error(obj, nstate, targets)
+        function res = apply_channel(obj, nstate, targets, tot)
             % Applies the error on a state. Example: bitflip error with
             % probability p, 1 bit. rho_new = (1-p)*rho + p*X*rho*X'.
             if ~(isa(nstate, 'NbitState') || ismatrix(nstate))
@@ -49,9 +49,18 @@ classdef QuantumErrorChannel < handle
                 rho = (1-p)*nstate;
                 tot_bits = log2(size(nstate,1));
             end
-            for i = 1:size(obj.operation_elements,3)
-                op = obj.nbit_noise_element(i, targets, tot_bits);
-                rho = rho + op*rho_i*op';
+            if tot
+                for i = 1:size(obj.operation_elements,3)
+                    op = obj.nbit_noise_element(i, targets, tot_bits);
+                    rho = rho + op*rho_i*op';
+                end
+                res = rho;
+            else
+                op = obj.nbit_noise_element(1, targets, tot_bits);
+                res = op*rho_i*op';
+                for i=2:size(obj.operation_elements,3)
+                    res = res + op*rho_i*op';
+                end
             end
         end
     end
