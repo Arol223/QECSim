@@ -67,6 +67,7 @@ classdef NbitState < handle
         
         
         function init_all_zeros(obj, nbits, init_error)
+            % init_all_zeros(nbits, init_error)
             % Initialise the register with 0 in every position with
             % initialisation error. 
             p_0 = 1 - init_error; % Prob to be initialised in 0
