@@ -34,18 +34,35 @@ s3 = syndrome(3);
 for i = 1:3
     [tmp1, p1] = FT_CSSgen_measurement(nbitstate,block,CSSCode,type,1,s1,...
         i,e_init,e_readout,had,cnot,cz);
+    if ~p1
+        % There are three of these but the explanation is the same
+        % everywhere. If one of the probabilities p1, p2 or p3 is 0 that
+        % path doesn't need to be checked, since it can't happen anyway. 
+        continue 
+    end
+    
     for j = 1:3
         [tmp2, p2] = FT_CSSgen_measurement(tmp1,block,CSSCode,type,2,s2,...
             j,e_init,e_readout,had,cnot,cz);
+        if ~p2
+            continue
+        end
+        
         for k = 1:3
             [tmp3, p3] = FT_CSSgen_measurement(tmp2,block,CSSCode,type,3,s3,...
                 k,e_init,e_readout,had,cnot,cz);
-            rho_tot = rho_tot+tmp3;
-            p_tot = p_tot+p1*p2*p3;
+            if ~p3
+                continue
+            end
+           
+            p = p1*p2*p3;
+            rho_tot = rho_tot+tmp3.*p;
+            
+            p_tot = p_tot+p;
         end
     end
 end
 
-
+normalise(rho_tot)
 end
 
