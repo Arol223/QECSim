@@ -64,7 +64,9 @@ classdef NbitState < handle
             obj.rho = rho;
         end
         
-        
+        function [m,n] = size(obj)
+           [m,n] = size(obj.rho); 
+        end
         
         function init_all_zeros(obj, nbits, init_error)
             % init_all_zeros(nbits, init_error)
