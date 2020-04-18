@@ -8,10 +8,10 @@ function [rho, p] = measurement_e( nbitstate, target, val, e_readout,...
 
 
 [rho, p] = projective_measurement(nbitstate, target, val, 0);
-[rho_e, ~] = projective_measurement(nbitstate, target, mod(val+1,2), 0);
-
-rho = (1-e_readout)*rho + e_readout*rho_e;
-
+if e_readout
+    [rho_e, ~] = projective_measurement(nbitstate, target, mod(val+1,2), 0);
+    rho = (1-e_readout)*rho + e_readout*rho_e;
+end
 if output_state
     rho = NbitState(rho);
 end

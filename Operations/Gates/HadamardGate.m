@@ -61,9 +61,9 @@ classdef HadamardGate < QuantumGate
         end
         
         function rho = apply_errors(obj, nbitstate, targets)
-            err = obj.xerr;
-            rho = err.apply_channel(nbitstate, targets, 0);
-            for i = 2:3
+            [m,n] = size(nbistate);
+            rho = spalloc(m,n,m*n/2);
+            for i = 1:3
                 err = obj.get_error(i);
                 rho = rho + err.apply_channel(nbitstate,targets,0);
             end

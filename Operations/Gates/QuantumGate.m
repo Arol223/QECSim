@@ -85,14 +85,22 @@ classdef QuantumGate<handle
             if nargin < 4                
                 rho_exact = obj.pure_operation(nbitstate, targets);
                 %spy(rho_exact)
-                rho_error = obj.apply_errors(nbitstate, targets);
+                if obj.p_succ ~= 1
+                    rho_error = obj.apply_errors(nbitstate, targets);
+                end
             else
                 rho_exact = obj.pure_operation(nbitstate, controls, targets);
                 %spy(rho_exact)
-                rho_error = obj.apply_errors(nbitstate, controls, targets);
+                if obj.p_succ ~= 1
+                    rho_error = obj.apply_errors(nbitstate, controls, targets);
+                end
             end
             %spy(rho_error)
-            rho = rho_exact+rho_error;
+            if obj.p_succ ~= 1
+                rho = rho_exact+rho_error;
+            else
+                rho = rho_exact;
+            end
             %spy(rho)
             if isa(nbitstate, 'NbitState')
                 rho = NbitState(sparse(rho));

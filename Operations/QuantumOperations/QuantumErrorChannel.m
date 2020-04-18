@@ -39,6 +39,11 @@ classdef QuantumErrorChannel < handle
             if ~(isa(nstate, 'NbitState') || ismatrix(nstate))
                 error('Please specify an NbitState or matrix to be affected by noise')
             end
+            if ~obj.probability
+                m = size(nstate.rho,1);
+                res = spalloc(m,m,m.^2/2);
+                return
+            end
             p = obj.probability;
             if isa(nstate, 'NbitState')
                 rho_i = nstate.rho;

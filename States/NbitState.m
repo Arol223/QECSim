@@ -81,11 +81,12 @@ classdef NbitState < handle
             end
         end
         
-        function times(obj, op)
-        % Performs arbitrary unitary operation or scalar multiplication,
-        % overloads .*.
+        function res = times(obj, op)
+        % Performs arbitrary operation or scalar multiplication,
+        % overloads '.*'.
             if isscalar(op)
-                obj.rho = op.*obj.rho;
+                res = op.*obj.rho;
+                res = NbitState(res);
             elseif ismatrix(op)
                 obj.rho = op*obj.rho*op';
             end
@@ -116,8 +117,6 @@ classdef NbitState < handle
             %spy(obj.rho)
         end
         
-        
-        % TODO: This doesn't work, try to fix if time exists|| fixed
         function trace_out_bits(obj, bit_nbrs)
             % Traces out the bits specified in bit_nbrs. See
             % TrX for implementation details and source. 
@@ -143,6 +142,10 @@ classdef NbitState < handle
         
         function spy(obj)
             spy(obj.rho)
+        end
+        
+        function normalise(obj)
+            obj.rho = obj.rho./trace(obj.rho);
         end
     end
     

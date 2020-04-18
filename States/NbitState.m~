@@ -33,14 +33,13 @@ classdef NbitState < handle
         function s = plus(obj,oth)
             if isa(oth, 'NbitState')
                 x = obj.rho + oth.rho;
-            elseif ismatrix(oth) && size(oth) == size(obj.rho)
+            elseif (ismatrix(oth) && (isequal(size(oth), size(obj.rho))))
                 x = obj.rho + oth;
+    
             else
                 error('Both operands must be NbitStates or matrices of right dimension')
             end
-            bitn = log2(size(x,1));
-            s = NbitState(bitn);
-            s.initialise(x);
+            s = NbitState(x);
         end
         
         % Overloads * to become the tensor product of two NbitStates
@@ -65,7 +64,9 @@ classdef NbitState < handle
             obj.rho = rho;
         end
         
-        
+        function [m,n] = size(obj)
+           [m,n] = size(obj.rho); 
+        end
         
         function init_all_zeros(obj, nbits, init_error)
             % init_all_zeros(nbits, init_error)
@@ -80,11 +81,12 @@ classdef NbitState < handle
             end
         end
         
-        function times(obj, op)
+        function res = times(obj, op)
         % Performs arbitrary unitary operation or scalar multiplication,
         % overloads .*.
             if isscalar(op)
-                obj.rho = op.*obj.rho;
+                res = op.*obj.rho;
+                res
             elseif ismatrix(op)
                 obj.rho = op*obj.rho*op';
             end
