@@ -41,9 +41,9 @@ end
 [rho,p_rho] = measure_css_gen(nbitstate,block,CSSCode,type,gen_nbr,vals(1),e_init,...
     e_readout, had_gate,CNot,CZ);
 for i = 2:length(vals)
-   [r_tmp,p_tmp] =  measure_css_gen(nbitstate,block,CSSCode,type,gen_nbr,vals(i),e_init,...
+   [rho,p_tmp] =  measure_css_gen(rho,block,CSSCode,type,gen_nbr,vals(i),e_init,...
     e_readout, had_gate,CNot,CZ);
-    rho = rho+r_tmp;
+    %rho = rho.*p_rho + r_tmp.*p_tmp;
     p_rho = p_rho*p_tmp;
 end
 
