@@ -67,7 +67,7 @@ classdef StabiliserCode
         function c_stab = cstabiliser(obj,i)
             % Creates a controlled version of the stabiliser used for
             % readouts. 
-            if i < 1 || i > obj.n_stabilisers
+            if (i < 1 || i > obj.n_stabilisers)
                 error('Index i out of bounds')
             end
             weight = obj.stab_weight;

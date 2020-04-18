@@ -6,7 +6,7 @@ classdef AncillaState < NbitState
         end
         
         function val = measure_bit(obj, bit)
-            if bit < 1 || bit > obj.nbits
+            if (bit < 1 || bit > obj.nbits)
                 error('Specify a bit between 1 and nbits')
             end
             p_0 = measure_prob(obj.rho, bit, 0, obj.nbits);    % Probability to measure the bit in 0

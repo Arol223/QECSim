@@ -33,14 +33,13 @@ classdef NbitState < handle
         function s = plus(obj,oth)
             if isa(oth, 'NbitState')
                 x = obj.rho + oth.rho;
-            elseif ismatrix(oth) && size(oth) == size(obj.rho)
+            elseif (ismatrix(oth) && (isequal(size(oth), size(obj.rho))))
                 x = obj.rho + oth;
+    
             else
                 error('Both operands must be NbitStates or matrices of right dimension')
             end
-            bitn = log2(size(x,1));
-            s = NbitState(bitn);
-            s.initialise(x);
+            s = NbitState(x);
         end
         
         % Overloads * to become the tensor product of two NbitStates
@@ -66,6 +65,7 @@ classdef NbitState < handle
         end
         
         
+        
         function init_all_zeros(obj, nbits, init_error)
             % init_all_zeros(nbits, init_error)
             % Initialise the register with 0 in every position with
@@ -79,11 +79,13 @@ classdef NbitState < handle
             end
         end
         
-        
-        % Performs arbitrary unitary operation, overloads .*.
         function times(obj, op)
-            if ismatrix(op) 
-                obj.rho =  op*obj.rho*op';
+        % Performs arbitrary unitary operation or scalar multiplication,
+        % overloads .*.
+            if isscalar(op)
+                obj.rho = op.*obj.rho;
+            elseif ismatrix(op)
+                obj.rho = op*obj.rho*op';
             end
         end
         
@@ -133,15 +135,12 @@ classdef NbitState < handle
             obj.rho = operator*obj.rho*operator';
         end
         
-        function noisy_operation(obj, op, noise, targets)
-            if nargin < 2
-                obj.operation(op)
-            elseif ~isa(noise, 'QuantumErrorChannel')
-                error('Noise has to be empty or instance of QuantumErrorChannel')
-            else
-               obj.operation(op);
-               obj.rho = noise.apply_error(obj.rho, targets);
-            end
+        function res = trace(obj)
+            res = trace(obj.rho);
+        end
+        
+        function spy(obj)
+            spy(obj.rho)
         end
     end
     

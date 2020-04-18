@@ -1,5 +1,5 @@
 function p = measure_prob(rho, target, val, nbits)
-% The probability to measure the target i.e. if psi = a|0>+b|1>, val = 0
+% The probability to measure the target as val i.e. if psi = a|0>+b|1>, val = 0
 % ->p=|a|^2.
  max = 2^nbits;
     bit_exp = nbits-target;

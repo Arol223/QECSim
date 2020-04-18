@@ -1,5 +1,5 @@
-classdef CNOTGate < QuantumGate
-    %CNOTGATE A CNOT gate model including uncorrelated errors
+classdef CZGate < QuantumGate
+    %CZGATE A controlled Pauli-Z gate
     %   Detailed explanation goes here
     
     properties (Dependent)
@@ -20,7 +20,7 @@ classdef CNOTGate < QuantumGate
     
     methods
         
-        function obj = CNOTGate(p_eij, p_no_op, operation_time)
+        function obj = CZGate(p_eij, p_no_op, operation_time)
             obj@QuantumGate(p_eij, p_no_op, operation_time)
         end
         
@@ -80,9 +80,9 @@ classdef CNOTGate < QuantumGate
                 nbits = log2(size(nbitstate,1));
                 rho = nbitstate;
             end
-            cnot = knCNOT(controls,targets,nbits);
+            cz = knCZ(controls,targets,nbits);
             %spy(cnot)
-            rho = obj.p_succ*cnot*rho*cnot';
+            rho = obj.p_succ*cz*rho*cz';
             %spy(rho)
         end
         

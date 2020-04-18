@@ -22,7 +22,7 @@ classdef QuantumOperation < handle
             pre_op = zeros(2,2,tot_bits);
             for i = 1:tot_bits
                 if ismember(i,targets)
-                    pre_op(:,:,i) = element;
+                    pre_op(:,:,i) = obj.element_weights(i)*element;
                 else
                     pre_op(:,:,i) = speye(2);
                 end

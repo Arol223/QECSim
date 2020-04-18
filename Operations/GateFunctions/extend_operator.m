@@ -9,11 +9,11 @@ else
 end
 
 for i = 2:nbits
-   if i == index
-       A = kron(A,operator);
-   else
-       A = kron(A,I);
-   end
+    if i == index
+        A = kron(A,operator);
+    else
+        A = kron(A,I);
+    end
 end
-    
+
 end
