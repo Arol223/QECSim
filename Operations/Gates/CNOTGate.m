@@ -13,6 +13,7 @@ classdef CNOTGate < QuantumGate
     
     properties
         controlled = true;
+        knCNOT = memoize(@knCNOT);
         operation_time;
         p_no_op; % probability that the gate fails completely, i.e.becomes an identity operation.
         p_eij; % probability for ij:th error. First row is target error, second row is control error.
@@ -22,6 +23,7 @@ classdef CNOTGate < QuantumGate
         
         function obj = CNOTGate(p_eij, p_no_op, operation_time)
             obj@QuantumGate(p_eij, p_no_op, operation_time)
+            obj.knCNOT.CacheSize = 5000;
         end
         
         function random_errors(obj, p_succ)
@@ -80,7 +82,7 @@ classdef CNOTGate < QuantumGate
                 nbits = log2(size(nbitstate,1));
                 rho = nbitstate;
             end
-            cnot = knCNOT(controls,targets,nbits);
+            cnot = obj.knCNOT(controls,targets,nbits);
             %spy(cnot)
             rho = obj.p_succ*cnot*rho*cnot';
             %spy(rho)
