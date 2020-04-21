@@ -120,7 +120,12 @@ classdef NbitState < handle
         function trace_out_bits(obj, bit_nbrs)
             % Traces out the bits specified in bit_nbrs. See
             % TrX for implementation details and source. 
-            obj.rho = TrX(obj.rho, bit_nbrs, 2*ones(1, obj.nbits));
+            if isequal(bit_nbrs, 1:length(bit_nbrs)) % A check if the bipartite partial trace is requested;
+                dims = [2^length(bit_nbrs),2^(obj.nbits - length(bit_nbrs))];
+                obj.rho = TraceOutLeft(dims,obj.rho);
+            else
+                obj.rho = TrX(obj.rho, bit_nbrs, 2*ones(1, obj.nbits));
+            end
         end
         
         function trace_out_system(obj, sys, dim)

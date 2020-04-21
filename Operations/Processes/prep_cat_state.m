@@ -16,7 +16,5 @@ rho = HadGate.apply(rho, 2);    % H-gate on bit 1
 rho = CNotGate.apply(rho, targets, controls);   %CNot
 rho = measurement_e(rho, 1, 0, e_readout, 'NbitState'); % Verification measurement
 rho.trace_out_bits(1);  % Removing first bit. 
-
-
 end
 
