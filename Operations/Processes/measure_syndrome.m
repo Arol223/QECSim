@@ -18,7 +18,8 @@ function [ rho_tot, p_tot ] = measure_syndrome(nbitstate,block,CSSCode,...
 %   Syndrome - the desired error syndrome, e.g. .'111' in steane code. 
 %   e_init, e_readout - initialisation and readout error rates.
 %   had, cnot, cz - the gates required for the operations. 
-rho_tot = NbitState(zeros(2^nbitstate.nbits));
+n = 2^nbitstate.nbits;
+rho_tot = NbitState(spalloc(n,n,nnz(nbitstate.rho)));
 p_tot = 0;
 
 if nargin < 10

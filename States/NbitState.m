@@ -30,16 +30,16 @@ classdef NbitState < handle
             obj.rho = rho;
         end
         % Enables adding NbitStates as s = a+b where a & b are NbitStates
-        function s = plus(obj,oth)
+        function x = plus(obj,oth)
             if isa(oth, 'NbitState')
-                x = obj.rho + oth.rho;
+                x = sparse(obj.rho + oth.rho);
             elseif (ismatrix(oth) && (isequal(size(oth), size(obj.rho))))
-                x = obj.rho + oth;
+                x = sparse(obj.rho + oth);
     
             else
                 error('Both operands must be NbitStates or matrices of right dimension')
             end
-            s = NbitState(x);
+            x = NbitState(x);
         end
         
         % Overloads * to become the tensor product of two NbitStates
