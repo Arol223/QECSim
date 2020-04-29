@@ -88,7 +88,11 @@ classdef NbitState < handle
                 res = op.*obj.rho;
                 res = NbitState(res);
             elseif ismatrix(op)
-                obj.rho = op*obj.rho*op';
+                res = obj.rho*op;
+                res = NbitState(res);
+            elseif (isa(op,'NbitState') && ismatrix(obj))
+                res = obj*op.rho;
+                res = NbitState(res);
             end
         end
         
@@ -149,6 +153,9 @@ classdef NbitState < handle
             spy(obj.rho)
         end
         
+        function res = nnz(obj)
+            res = nnz(obj.rho);
+        end
         function normalise(obj)
             obj.rho = obj.rho./trace(obj.rho);
         end
