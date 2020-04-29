@@ -55,9 +55,7 @@ classdef HadamardGate < QuantumGate
                 rho = nbitstate;
             end
             had = kHad(targets,nbits);
-            %spy(cnot)
             rho = obj.p_succ*had*rho*had';
-            %spy(rho)
         end
         
         function rho = apply_errors(obj, nbitstate, targets)
