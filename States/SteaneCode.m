@@ -3,8 +3,8 @@ classdef SteaneCode < CSSCode
     %   Detailed explanation goes here
     
     properties
-        XStabilisers = ['IIIXXXX';'IXXIIXX';'XIXIXIX'];
-        ZStabilisers = ['IIIZZZZ'; 'IZZIIZZ'; 'ZIZIZIZ'];
+        XStabilisers = ['IIIXXXX';'XIXIXIX';'IXXIIXX'];
+        ZStabilisers = ['IIIZZZZ';'ZIZIZIZ';'IZZIIZZ'];
         nbits = 7;
         encoded_bits = 1;
         n_generators = 6;
