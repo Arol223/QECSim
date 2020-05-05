@@ -3,7 +3,8 @@ classdef SingleBitGate < handle
     properties
         error_probs % 1x4 vector containing probs for I, X, Y and Z errors in that order.
         operation_time
-    end
+        tol % Tolerance of the gate. Returned state will not have elements<tol. 
+    end     
     
     properties (Dependent)
         p_success
@@ -16,10 +17,9 @@ classdef SingleBitGate < handle
     
     methods
         
-        function obj = SingleBitGate(error_probs)
-            if nargin == 1
+        function obj = SingleBitGate(error_probs,operation_time)
                 obj.error_probs = error_probs;
-            end
+                obj.operation_time = operation_time;
         end
         
         function res = get.p_success(obj)
@@ -104,6 +104,14 @@ classdef SingleBitGate < handle
             rho = obj.apply_single(nbitstate, targets(1));
             for i = 2:length(targets)
                 rho = obj.apply_single(rho, targets(i));
+            end
+            
+            % Following three lines remove elements <tol
+            
+            rho=rho.*(abs(rho)>obj.tol);
+            tr = trace(rho);
+            if tr
+                rho = rho./tr;
             end
             if return_state
                 rho = NbitState(rho);

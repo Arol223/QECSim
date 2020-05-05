@@ -5,6 +5,7 @@ classdef TwoBitGate < handle
     properties
         error_probs; %2x4 vector containing error_probs for target bit and
         operation_time
+        tol % Tolerance of gate. Returned state will not have elements < tol
     end
     
     properties (Dependent)
@@ -15,11 +16,12 @@ classdef TwoBitGate < handle
         get_op_el(obj, nbits, target, control)
     end
     methods
-        function obj = TwoBitGate(error_probs, operation_time)
+        function obj = TwoBitGate(error_probs, tol, operation_time)
             %TWOBITGATE Construct an instance of this class
             %   Detailed explanation goes here
             obj.error_probs = error_probs;
             obj.operation_time = operation_time;
+            obj.tol = tol;
         end
         
         function p = get.p_success(obj)
@@ -95,8 +97,15 @@ classdef TwoBitGate < handle
             for i = 2:length(targets)
                 rho = obj.apply_single(rho, targets(i), controls(i));
             end
+            
+            % Three following lines removes elements smaller than tol. 
+            rho = rho.*(abs(rho)>obj.tol);
+            rho = rho./trace(rho);
+            if nnz(rho) > (size(rho,1)^2)/2
+                rho = full(rho);
+            end
             if return_state
-                rho = NbitState(rho);
+                rho = NbitState(rho);     
             end
         end
         
