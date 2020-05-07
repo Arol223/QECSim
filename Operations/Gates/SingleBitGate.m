@@ -4,6 +4,12 @@ classdef SingleBitGate < handle
         error_probs % 1x4 vector containing probs for I, X, Y and Z errors in that order.
         operation_time
         tol % Tolerance of the gate. Returned state will not have elements<tol. 
+        T1 % Material/system parameter
+        T2 % Material/system parameter
+        idle_state % If 1, amplitude and phase damping are applied to all bits
+                   % that aren't operated on even when doing a sequential
+                   % operation on multiple bits. If 2, only bits that
+                   % aren't operated on at all re idled.           
     end     
     
     properties (Dependent)
@@ -87,6 +93,10 @@ classdef SingleBitGate < handle
                 end
             end
             
+            if obj.idle_state == 1 % Idles all bits even for sequential operations.
+                idles = [1:target-1, target+1:nbits];
+                rho = idle_bits(rho, idles, obj.operation_time, obj.T1,obj.T2);
+            end
             
             if return_state
                 rho = NbitState(rho);
@@ -106,8 +116,11 @@ classdef SingleBitGate < handle
                 rho = obj.apply_single(rho, targets(i));
             end
             
-            % Following three lines remove elements <tol
-            
+            if obj.idle_state == 2
+                idles = remove_dupes(targets, 1:nbits);
+                rho = idle_bits(rho, idles, obj.operation_time, obj.T1, obj.T2);
+            end
+            % Following 2 lines remove elements <tol
             rho=rho.*(abs(rho)>obj.tol);
             tr = trace(rho);
             if tr
