@@ -12,16 +12,13 @@ classdef NbitState < handle
     
     methods
         
-        %Constructor, takes argument initial number of bits nbits_i
+        
         function obj = NbitState(rho)
             if nargin == 1
                 obj.rho = rho;
             end
         end
-        %         function set.nbits(obj)
-        %             v = size(obj.rho,1);
-        %             obj.nbits
-        %         end
+        
         function val = get.nbits(obj)
             val = size(obj.rho,1);
             val = log2(val);
@@ -32,12 +29,16 @@ classdef NbitState < handle
         % Enables adding NbitStates as s = a+b where a & b are NbitStates
         function x = plus(obj,oth)
             if isa(oth, 'NbitState')
-                x = sparse(obj.rho + oth.rho);
+                x = obj.rho + oth.rho;
+           
             elseif (ismatrix(oth) && (isequal(size(oth), size(obj.rho))))
-                x = sparse(obj.rho + oth);
+                x = obj.rho + oth;
     
             else
                 error('Both operands must be NbitStates or matrices of right dimension')
+            end
+            if nnz(x) < (size(x,1)^2)/2
+                x = sparse(x);
             end
             x = NbitState(x);
         end

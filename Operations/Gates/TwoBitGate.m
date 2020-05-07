@@ -5,6 +5,10 @@ classdef TwoBitGate < handle
     properties
         error_probs; %2x4 vector containing error_probs for target bit and
         operation_time
+        tol % Tolerance of gate. Returned state will not have elements < tol
+        idle_state %0,1 or 2, determines whether to idle bits and how to do it, see SingleBitGate
+        T1 % Material/ system param
+        T2 % Material/system param. 
     end
     
     properties (Dependent)
@@ -15,11 +19,12 @@ classdef TwoBitGate < handle
         get_op_el(obj, nbits, target, control)
     end
     methods
-        function obj = TwoBitGate(error_probs, operation_time)
+        function obj = TwoBitGate(error_probs, tol, operation_time)
             %TWOBITGATE Construct an instance of this class
             %   Detailed explanation goes here
             obj.error_probs = error_probs;
             obj.operation_time = operation_time;
+            obj.tol = tol;
         end
         
         function p = get.p_success(obj)
@@ -81,6 +86,11 @@ classdef TwoBitGate < handle
                 target = control;
             end
             
+            if obj.idle_state == 1 % Idles all bits even for sequential operations.
+                idles = [1:target-1, target+1:nbits];
+                rho = idle_bits(rho, idles, obj.operation_time, obj.T1,obj.T2);
+            end
+            
             if return_state
                 rho = NbitState(rho);
             end
@@ -95,8 +105,20 @@ classdef TwoBitGate < handle
             for i = 2:length(targets)
                 rho = obj.apply_single(rho, targets(i), controls(i));
             end
+            
+            if obj.idle_state == 2
+                idles = remove_dupes(unique([targets, controls]), 1:nbits);
+                rho = idle_bits(rho, idles, obj.operation_time, obj.T1, obj.T2);
+            end
+            
+            % Three following lines removes elements smaller than tol. 
+            rho = rho.*(abs(rho)>obj.tol);
+            rho = rho./trace(rho);
+            if nnz(rho) > (size(rho,1)^2)/2
+                rho = full(rho);
+            end
             if return_state
-                rho = NbitState(rho);
+                rho = NbitState(rho);     
             end
         end
         
