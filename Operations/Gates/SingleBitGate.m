@@ -93,7 +93,8 @@ classdef SingleBitGate < handle
                 end
             end
             
-            if obj.idle_state == 1 % Idles all bits even for sequential operations.
+            if (obj.idle_state == 1 && obj.operation_time)
+                % Idles all bits even for sequential operations.
                 idles = [1:target-1, target+1:nbits];
                 rho = idle_bits(rho, idles, obj.operation_time, obj.T1,obj.T2);
             end
@@ -116,7 +117,7 @@ classdef SingleBitGate < handle
                 rho = obj.apply_single(rho, targets(i));
             end
             
-            if obj.idle_state == 2
+            if (obj.idle_state == 2 && obj.operation_time)
                 idles = remove_dupes(targets, 1:nbits);
                 rho = idle_bits(rho, idles, obj.operation_time, obj.T1, obj.T2);
             end
