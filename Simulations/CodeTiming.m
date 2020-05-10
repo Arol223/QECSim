@@ -56,11 +56,47 @@ end
 t_tol(1) = mean(times);
 stdev_tol(1) = std(times);
 
-[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(150e-6,150e-6,5e-6,1e-6,0);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-6,cnot,cz,zgate,hadgate);
 for i = 1:reps
     tic;
-    f();
+    Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
     times(i) = toc;
 end
-t_tol(1) = mean(times);
-stdev_tol(1) = std(times);
+t_tol(2) = mean(times);
+stdev_tol(2) = std(times);
+
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-7,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol(3) = mean(times);
+stdev_tol(3) = std(times);
+
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-8,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol(4) = mean(times);
+stdev_tol(4) = std(times);
+
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-9,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol(5) = mean(times);
+stdev_tol(5) = std(times);
+
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-10,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol(6) = mean(times);
+stdev_tol(6) = std(times);
