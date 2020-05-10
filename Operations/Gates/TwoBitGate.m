@@ -137,8 +137,13 @@ classdef TwoBitGate < handle
             end
             
             % Three following lines removes elements smaller than tol.
-            rho = rho.*(abs(rho)>obj.tol);
-            rho = rho./trace(rho);
+            if obj.tol
+                rho = rho.*(abs(rho)>obj.tol);
+                tr = trace(rho);
+                if tr
+                    rho = rho./tr;
+                end
+            end
             if nnz(rho) > (size(rho,1)^2)/2
                 rho = full(rho);
             end

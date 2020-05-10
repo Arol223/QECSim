@@ -58,11 +58,11 @@ classdef SingleBitGate < handle
         end
         
         function err_from_T(obj)
-           p_biflip = 1 - exp(-obj.operation_time./obj.T1); 
-           p_phaseflip = 1 - exp(-obj.operation_time./obj.T2);
-           obj.error_probs = zeros(1,4);
-           obj.error_probs(2) = p_biflip;
-           obj.error_probs(4) = p_phaseflip;
+            p_biflip = 1 - exp(-obj.operation_time./obj.T1);
+            p_phaseflip = 1 - exp(-obj.operation_time./obj.T2);
+            obj.error_probs = zeros(1,4);
+            obj.error_probs(2) = p_biflip;
+            obj.error_probs(4) = p_phaseflip;
         end
         
         function res = get_err(obj, i, target, nbits)
@@ -147,10 +147,13 @@ classdef SingleBitGate < handle
                 rho = idle_bits(rho, idles, obj.operation_time, obj.T1, obj.T2);
             end
             % Following 2 lines remove elements <tol
-            rho=rho.*(abs(rho)>obj.tol);
-            tr = trace(rho);
-            if tr
-                rho = rho./tr;
+            if obj.tol
+                rho=rho.*(abs(rho)>obj.tol);
+                tr = trace(rho);
+                
+                if tr
+                    rho = rho./tr;
+                end
             end
             if return_state
                 rho = NbitState(rho);
