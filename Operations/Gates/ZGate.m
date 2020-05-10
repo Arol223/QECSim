@@ -7,8 +7,8 @@ classdef ZGate < SingleBitGate
     end
     
     methods
-        function obj = ZGate(error_probs,tol,operation_time,varargin)
-            obj@SingleBitGate(error_probs,tol,operation_time,varargin{:})
+        function obj = ZGate(tol,operation_time,varargin)
+            obj@SingleBitGate(tol,operation_time,varargin{:})
         end
     end
 end

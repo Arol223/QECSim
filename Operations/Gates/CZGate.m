@@ -8,8 +8,8 @@ classdef CZGate < TwoBitGate
     
     methods
         
-        function obj = CZGate(error_probs,tol, operation_time,varargin)
-            obj@TwoBitGate(error_probs,tol, operation_time, varargin{:})
+        function obj = CZGate(tol, operation_time,varargin)
+            obj@TwoBitGate(tol, operation_time, varargin{:})
             obj.kCZ.CacheSize = 5000;
         end
         

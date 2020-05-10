@@ -23,26 +23,26 @@ classdef SingleBitGate < handle
     
     methods
         
-        function obj = SingleBitGate(error_probs,tol,operation_time,T1,T2,idle_state)
-            if nargin < 6
+        function obj = SingleBitGate(tol,operation_time,T1,T2,idle_state)
+            if nargin < 5
                 obj.idle_state = 0;
             else
                 obj.idle_state = idle_state;
             end
-            if nargin < 5
-                obj.T2 = 0;
+            if nargin < 4
+                obj.T2 = Inf;
             else
                 obj.T2 = T2;
             end
-            if nargin < 4
-                obj.T1 = 0;
+            if nargin < 3
+                obj.T1 = Inf;
             else
                 obj.T1 = T1;
             end
-            obj.error_probs = error_probs;
+            
             obj.operation_time = operation_time;
             obj.tol = tol;
-            
+            obj.err_from_T();
         end
         
         function res = get.p_success(obj)
@@ -55,6 +55,14 @@ classdef SingleBitGate < handle
             p = p./sum(p);
             p = p.*(1-p_success);
             obj.error_probs = p;
+        end
+        
+        function err_from_T(obj)
+           p_biflip = 1 - exp(-obj.operation_time./obj.T1); 
+           p_phaseflip = 1 - exp(-obj.operation_time./obj.T2);
+           obj.error_probs = zeros(1,4);
+           obj.error_probs(2) = p_biflip;
+           obj.error_probs(4) = p_phaseflip;
         end
         
         function res = get_err(obj, i, target, nbits)
