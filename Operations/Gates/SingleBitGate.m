@@ -3,14 +3,14 @@ classdef SingleBitGate < handle
     properties
         error_probs % 1x4 vector containing probs for I, X, Y and Z errors in that order.
         operation_time
-        tol % Tolerance of the gate. Returned state will not have elements<tol. 
+        tol % Tolerance of the gate. Returned state will not have elements<tol.
         T1 % Material/system parameter
         T2 % Material/system parameter
         idle_state % If 1, amplitude and phase damping are applied to all bits
-                   % that aren't operated on even when doing a sequential
-                   % operation on multiple bits. If 2, only bits that
-                   % aren't operated on at all re idled.           
-    end     
+        % that aren't operated on even when doing a sequential
+        % operation on multiple bits. If 2, only bits that
+        % aren't operated on at all re idled.
+    end
     
     properties (Dependent)
         p_success
@@ -23,9 +23,26 @@ classdef SingleBitGate < handle
     
     methods
         
-        function obj = SingleBitGate(error_probs,operation_time)
-                obj.error_probs = error_probs;
-                obj.operation_time = operation_time;
+        function obj = SingleBitGate(error_probs,tol,operation_time,T1,T2,idle_state)
+            if nargin < 6
+                obj.idle_state = 0;
+            else
+                obj.idle_state = idle_state;
+            end
+            if nargin < 5
+                obj.T2 = 0;
+            else
+                obj.T2 = T2;
+            end
+            if nargin < 4
+                obj.T1 = 0;
+            else
+                obj.T1 = T1;
+            end
+            obj.error_probs = error_probs;
+            obj.operation_time = operation_time;
+            obj.tol = tol;
+            
         end
         
         function res = get.p_success(obj)

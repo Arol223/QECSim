@@ -8,8 +8,8 @@ classdef CNOTGate < TwoBitGate
     
     methods
         
-        function obj = CNOTGate(error_probs, operation_time)
-            obj@TwoBitGate(error_probs, operation_time)
+        function obj = CNOTGate(error_probs,tol, operation_time,varargin)
+            obj@TwoBitGate(error_probs,tol, operation_time, varargin{:})
             obj.kCNOT.CacheSize = 5000;
         end
         

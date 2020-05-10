@@ -8,7 +8,7 @@ classdef TwoBitGate < handle
         tol % Tolerance of gate. Returned state will not have elements < tol
         idle_state %0,1 or 2, determines whether to idle bits and how to do it, see SingleBitGate
         T1 % Material/ system param
-        T2 % Material/system param. 
+        T2 % Material/system param.
     end
     
     properties (Dependent)
@@ -19,9 +19,24 @@ classdef TwoBitGate < handle
         get_op_el(obj, nbits, target, control)
     end
     methods
-        function obj = TwoBitGate(error_probs, tol, operation_time)
+        function obj = TwoBitGate(error_probs, tol, operation_time,T1,T2,idle_state)
             %TWOBITGATE Construct an instance of this class
             %   Detailed explanation goes here
+            if nargin < 6
+                obj.idle_state = 0;
+            else
+                obj.idle_state = idle_state;
+            end
+            if nargin < 5
+                obj.T2 = 0;
+            else
+               obj.T2 = T2; 
+            end
+            if nargin < 4
+                obj.T1 = 0;
+            else
+                obj.T1 = T1;
+            end
             obj.error_probs = error_probs;
             obj.operation_time = operation_time;
             obj.tol = tol;
@@ -112,14 +127,14 @@ classdef TwoBitGate < handle
                 rho = idle_bits(rho, idles, obj.operation_time, obj.T1, obj.T2);
             end
             
-            % Three following lines removes elements smaller than tol. 
+            % Three following lines removes elements smaller than tol.
             rho = rho.*(abs(rho)>obj.tol);
             rho = rho./trace(rho);
             if nnz(rho) > (size(rho,1)^2)/2
                 rho = full(rho);
             end
             if return_state
-                rho = NbitState(rho);     
+                rho = NbitState(rho);
             end
         end
         
