@@ -49,6 +49,8 @@ end
 t_mean(4) = mean(times);
 stdev(4) = std(times);
 
+
+
 %% State prep bit & phase with tol
 [cnot,cz,zgate,hadgate] = ChangeTol(1e-5,cnot,cz,zgate,hadgate);
 for i = 1:reps
