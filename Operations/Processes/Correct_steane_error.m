@@ -29,7 +29,7 @@ for i = 1:8
     if ind
         r_tmp = corr_gate.apply(r_tmp, ind+(block-1)*7); % EC operation
     end
-    if ~ind
+    if ~ind &&  corr_gate.tol
         r_tmp.rho = r_tmp.rho.*(abs(r_tmp.rho)>corr_gate.tol);
     end
     p(i) = p_tmp;
