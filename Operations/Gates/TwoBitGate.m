@@ -123,8 +123,11 @@ classdef TwoBitGate < handle
         function rho = apply(obj, nbitstate, targets,controls)
             return_state = 0;
             if isa(nbitstate, 'NbitState')
+                nbits = nbitstate.nbits;
                 nbitstate = nbitstate.rho;
                 return_state = 1;
+            else
+                nbits = log2(size(nbitstate,1));
             end
             rho = obj.apply_single(nbitstate, targets(1), controls(1));
             for i = 2:length(targets)
@@ -133,7 +136,9 @@ classdef TwoBitGate < handle
             
             if (obj.idle_state == 2 && obj.operation_time)
                 idles = remove_dupes(unique([targets, controls]), 1:nbits);
-                rho = idle_bits(rho, idles, obj.operation_time, obj.T1, obj.T2);
+                if ~isempty(idles)
+                    rho = idle_bits(rho, idles, obj.operation_time, obj.T1, obj.T2);
+                end
             end
             
             % Three following lines removes elements smaller than tol.
