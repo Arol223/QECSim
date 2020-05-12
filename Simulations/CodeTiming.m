@@ -1,5 +1,7 @@
+%% Setup
 clear variables
 close all
+
 %% State preparation without errors
 [cnot, cz, xgate, ygate, zgate, hadgate] = MakeGates(Inf,Inf,zeros(6,1),0,0); %Gates without errors
 rho = NbitState();
@@ -48,8 +50,6 @@ for i = 1:reps
 end
 t_mean(4) = mean(times);
 stdev(4) = std(times);
-
-
 
 %% State prep bit & phase with tol
 [cnot,cz,zgate,hadgate] = ChangeTol(1e-5,cnot,cz,zgate,hadgate);
@@ -108,5 +108,147 @@ t_tol(6) = mean(times);
 stdev_tol(6) = std(times);
 fid(6) = Fidelity(rtot,r);
 
-%% test x gates
+DoneNotification();
+%% State prep bit and phaseflip with idling 1&2
+[cnot,cz,zgate,hadgate] = ChangeTol(0,cnot,cz,zgate,hadgate);
+[cnot,cz,zgate,hadgate] = SetIdleState(1,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [rtot,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_idle(1) = mean(times);
+stdevidle(1) = std(times);
 
+[cnot,cz,zgate,hadgate] = SetIdleState(2,cnot,cz,zgate,hadgate);
+
+for i = 1:reps
+    tic;
+    [rtot,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_idle(2) = mean(times);
+stdevidle(2) = std(times);
+
+
+
+DoneNotification();
+%% State prep bit & phase with idle1 & tol
+[cnot,cz,zgate,hadgate] = SetIdleState(1,cnot,cz,zgate,hadgate);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-5,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    
+    times(i) = toc;
+end
+t_tol_idle1(1) = mean(times);
+stdev_tol_idle1(1) = std(times);
+fid_idle1(1) = Fidelity(rtot,r);
+
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-6,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p] = Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol_idle1(2) = mean(times);
+stdev_tol_idle1(2) = std(times);
+fid_idle1(2) = Fidelity(rtot,r);
+
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-7,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+end
+t_tol_idle1(3) = mean(times);
+stdev_tol_idle1(3) = std(times);
+fid_idle1(3) = Fidelity(rtot,r);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-8,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol_idle1(4) = mean(times);
+stdev_tol_idle1(4) = std(times);
+fid_idle1(4) = Fidelity(rtot,r);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-9,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol_idle1(5) = mean(times);
+stdev_tol_idle1(5) = std(times);
+fid_idle1(5) = Fidelity(rtot,r);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-10,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol_idle1(6) = mean(times);
+stdev_tol_idle1(6) = std(times);
+fid_idle1(6) = Fidelity(rtot,r);
+
+DoneNotification();
+%% State prep bit & phase with idle2 & tol
+[cnot,cz,zgate,hadgate] = SetIdleState(2,cnot,cz,zgate,hadgate);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-5,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    
+    times(i) = toc;
+end
+t_tol_idle2(1) = mean(times);
+stdev_tol_idle2(1) = std(times);
+fid_idle2(1) = Fidelity(rtot,r);
+
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-6,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p] = Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol_idle2(2) = mean(times);
+stdev_tol_idle2(2) = std(times);
+fid_idle2(2) = Fidelity(rtot,r);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-7,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+end
+t_tol_idle2(3) = mean(times);
+stdev_tol_idle2(3) = std(times);
+fid_idle2(3) = Fidelity(rtot,r);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-8,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol_idle2(4) = mean(times);
+stdev_tol_idle2(4) = std(times);
+fid_idle2(4) = Fidelity(rtot,r);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-9,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol_idle2(5) = mean(times);
+stdev_tol_idle2(5) = std(times);
+fid_idle2(5) = Fidelity(rtot,r);
+[cnot,cz,zgate,hadgate] = ChangeTol(1e-10,cnot,cz,zgate,hadgate);
+for i = 1:reps
+    tic;
+    [r,p]=Correct_steane_error(rho,1,S,'X',0,0,hadgate,cnot,zgate,cz);
+    times(i) = toc;
+end
+t_tol_idle2(6) = mean(times);
+stdev_tol_idle2(6) = std(times);
+fid_idle2(6) = Fidelity(rtot,r);
+
+DoneNotification();
