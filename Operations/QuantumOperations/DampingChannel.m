@@ -48,10 +48,11 @@ classdef DampingChannel < handle
                 if ismember(i,target)
                     pre_op(:,:,i) = element;
                 else
-                    pre_op(:,:,i) = speye(2);
+                    pre_op(:,:,i) = eye(2);
                 end
             end
             op = tensor_product(pre_op);
+            
         end
         
         function res = apply_single(obj, nstate, target)
