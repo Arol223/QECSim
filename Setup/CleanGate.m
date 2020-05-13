@@ -6,5 +6,6 @@ gate.T2 = Inf;
 gate.operation_time = 0;
 gate.tol = 0;
 gate.err_from_T;
+gate.idle_state = 0;
 end
 
