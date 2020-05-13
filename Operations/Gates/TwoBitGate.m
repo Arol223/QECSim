@@ -3,7 +3,7 @@ classdef TwoBitGate < handle
     %   Detailed explanation goes here
     
     properties
-        error_probs; %2x4 vector containing error_probs for target bit and
+        error_probs; %4x4 vector containing error_probs for target bit and
         operation_time
         tol % Tolerance of gate. Returned state will not have elements < tol
         idle_state %0,1 or 2, determines whether to idle bits and how to do it, see SingleBitGate
@@ -46,10 +46,12 @@ classdef TwoBitGate < handle
             p = 1 - sum(obj.error_probs(:));
         end
         
-        function random_err(obj, p_succ)
-            p = rand(2,4);
+        function random_err(obj, p_err)
+            % Sets random error probabilities that sum to p_err
+            p = rand(4,4);
+            p(1,1) = 0;
             p = p./sum(p(:));
-            p = p.*(1-p_succ);
+            p = p.*(p_err);
             obj.error_probs = p;
         end
         
@@ -62,24 +64,40 @@ classdef TwoBitGate < handle
            obj.error_probs = [obj.error_probs;obj.error_probs];
         end
         
-        function res = get_err(obj, i, target, nbits)
+        function res = get_err(obj, i, j, targets, nbits)
             switch i
                 case 1
-                    op = sparse([0 1;1 0]); %Pauli X
+                    op1 = speye(2);
                 case 2
-                    op = sparse([0 -1i; 1i 0]); % Pauli Y
+                    op1 = sparse([0 1;1 0]); %Pauli X
                 case 3
-                    op = sparse([1 0;0 -1]); % Pauli Z
+                    op1 = sparse([0 -1i; 1i 0]); % Pauli Y
+                case 4
+                    op1 = sparse([1 0;0 -1]); % Pauli Z
             end
-            right = nbits - target;
-            left = target -1;
-            right = speye(2^right);
+            switch j 
+                case 1
+                    op2 = speye(2);
+                case 2
+                    op2 = sparse([0 1;1 0]); %Pauli X
+                case 3
+                    op2 = sparse([0 -1i; 1i 0]); % Pauli Y
+                case 4
+                    op2 = sparse([1 0;0 -1]); % Pauli Z
+            end
+            left = targets(1) - 1; % #bits 'left' of first bit.
+            mid = targets(2) - targets(1) - 1; % #bits 'between' target/control
+            right = nbits - targets(2); % #bits 'right' of second bit 
             left = speye(2^left);
-            res = kron(left,op);
+            mid = speye(2^mid);
+            right = speye(2^right);
+            res = kron(left,op1);
+            res = kron(res,mid);
+            res = kron(res,op2);
             res = kron(res,right);
         end
         
-        function rho = apply_single(obj, nbitstate,target, control)
+        function res = apply_single(obj, nbitstate,target, control)
             return_state = 0;
             if isa(nbitstate,'NbitState')
                 nbits = nbitstate.nbits;
@@ -90,24 +108,17 @@ classdef TwoBitGate < handle
             end
             op = obj.get_op_el(nbits, target, control);
             
-            rho1 =  (op*nbitstate)*(obj.p_success*op'); %Succesful op
-            rho = rho1;
-            if obj.error_probs(1,1)
-                rho = rho + obj.error_probs(1,1).*nbitstate;  %Identity error
-            end
-            if obj.error_probs(2,1)
-                rho = rho + obj.error_probs(2,1).*nbitstate; %Identity err.
-            end
-            for i = 1:2
-                for j = 1:3
-                    if obj.error_probs(i,j+1)
-                        % This statement and the similar one above are to avoid
-                        % multiplying and adding all zero matrices.
-                        op = obj.get_err(j,target,nbits); %Pauli Errors
-                        rho = rho + (obj.error_probs(i,j+1)*op)*(rho1*op');
+            rho =  (op*nbitstate)*op'; %Succesful op
+            res = rho*obj.p_success;
+            
+            for i = 1:4
+                for j = 1:4
+                    p = obj.error_probs(i,j);
+                    if p
+                        op = obj.get_err(i,j,[target control],nbits);
+                        res = res + (p*op)*(rho*op');
                     end
                 end
-                target = control;
             end
             
             if (obj.idle_state == 1 && obj.operation_time)
