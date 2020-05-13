@@ -6,7 +6,8 @@ end
 if isa(sigma,'NbitState')
     sigma = full(sigma.rho);
 end
-rho_p = sqrtm(abs(rho));
-fid = trace(sqrtm(rho_p*abs(sigma)*rho_p));
+rho_p = sqrtm(rho);
+
+fid = trace(sqrtm(rho_p*sigma*rho_p));
 end
 
