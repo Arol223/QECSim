@@ -22,10 +22,10 @@ parfor i = 1:length(error_rates)
     gatenr = randi(4,1,ngates); % Randomise the gate to test
     [cnot,cze,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[tdur2 tdur1],0,2); %gates with errors
     [cnot,cze,xgate,ygate,zgate,hadgate] = SetErrRate(error_rates(i),...
-        cnot,cze,xgate,ygate,zgate,hadgate) % Set the error rate
+        cnot,cze,xgate,ygate,zgate,hadgate); % Set the error rate
                     
     for j = 1:ngates
-        pick = gatenr(i);
+        pick = gatenr(j);
         switch pick
             case 1
                 gate = xgate;
@@ -54,7 +54,7 @@ end
 DoneNotification()
 
 %% plotting
-plot(error_rate,fid)
+plot(error_rates,fid)
 xlabel('Error rate')
 ylabel('Fidelity')
 title('Fidelity vs error rate for one logical gate with error correction');
