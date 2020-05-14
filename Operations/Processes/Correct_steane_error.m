@@ -1,4 +1,4 @@
-function  [rho_tot,p]  = Correct_steane_error( nbitstate,block,Steanecode...
+function  [rho_tot,p]  = Correct_steane_error( nbitstate,block...
     ,type,e_init,e_readout,had_gate,CNot,corr_gate,CZ )
 %CORRECT_STEANE_ERROR Run a bit or phase flip EC cycle using the steane
 %code
@@ -8,7 +8,8 @@ function  [rho_tot,p]  = Correct_steane_error( nbitstate,block,Steanecode...
 %   when trying to error correct, each giving a separate syndrome. This
 %   adds all the outcomes and returns the total state after correction. 
 %   Follows circuit in 'Error Correction for Beginners' by Devitt S. et al.
-if nargin <10
+Steanecode = SteaneCode();
+if nargin <9
    if strcmp(type, 'X')
        if ~isa(corr_gate, 'ZGate')
            error('Need a Z-gate for correcting phase flips')
