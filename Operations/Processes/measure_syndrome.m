@@ -19,7 +19,7 @@ function [ rho_tot, p_tot ] = measure_syndrome(nbitstate,block,CSSCode,...
 %   e_init, e_readout - initialisation and readout error rates.
 %   had, cnot, cz - the gates required for the operations. 
 n = 2^nbitstate.nbits;
-rho_tot = NbitState(spalloc(n,n,nnz(nbitstate.rho)));
+rho_tot = NbitState(spalloc(n,n,(n^2)/2));
 p_tot = 0;
 
 if nargin < 10

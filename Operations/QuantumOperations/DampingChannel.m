@@ -28,44 +28,55 @@ classdef DampingChannel < handle
             val = obj.DampingCoeff;
         end
         
-        function State = apply_channel(obj, nstate, targets)
+        function res = apply(obj, nstate, targets)
             % Used to apply error to state, which can be defined either by
             % a density matrix or an instance of NbitState. Returns a
             % density matrix.
-            if ~(isa(nstate,'NbitState')|| ismatrix(nstate))
-                error('nstate must be an NbitState, a subclass thereof or a matrix')
+            res = obj.apply_single(nstate,targets(1));
+            for i=2:length(targets)
+                res = obj.apply_single(nstate,targets(i));
             end
-            if isa(nstate,'NbitState')
-                State = nstate.rho;
-                tot_bits = nstate.nbits;
-            else
-                State = nstate;
-                tot_bits = log2(size(nstate,1));
-            end
-            
-            op = obj.nbit_op_element(1, targets, tot_bits);
-            State = op*State*op';
-            for i = 2:size(obj.operation_elements,3)
-                op = obj.nbit_op_element(i, targets, tot_bits);
-                State = State + op*State*op';
-            end
-            
         end
         
-        function op = nbit_op_element(obj, element_number, targets, tot_bits)
+        function op = nbit_op_element(obj, element_number, target, tot_bits)
             % Used to construct an operation element for a multi qubit
             % density matrix. targets is a vector containing indices of
             % bits to be affected by error. 
             element = obj.operation_elements(:,:,element_number);
             pre_op = zeros(2,2,tot_bits);
             for i = 1:tot_bits
-                if ismember(i,targets)
+                if ismember(i,target)
                     pre_op(:,:,i) = element;
                 else
-                    pre_op(:,:,i) = speye(2);
+                    pre_op(:,:,i) = eye(2);
                 end
             end
             op = tensor_product(pre_op);
+            
+        end
+        
+        function res = apply_single(obj, nstate, target)
+            if ~(isa(nstate,'NbitState')|| ismatrix(nstate))
+                error('nstate must be an NbitState, a subclass thereof or a matrix')
+            end
+            return_state = 0;
+            if isa(nstate,'NbitState')
+                res = nstate.rho;
+                tot_bits = nstate.nbits;
+                return_state = 1;
+            else
+                res = nstate;
+                tot_bits = log2(size(nstate,1));
+            end
+            op = obj.nbit_op_element(1,target,tot_bits);
+            res = op*res*op';
+            for i =2:size(obj.operation_elements,3)
+               op = obj.nbit_op_element(i, target, tot_bits);
+               res = res + op*res*op';
+            end
+            if return_state
+                res = NbitState(res);
+            end
         end
         
     end

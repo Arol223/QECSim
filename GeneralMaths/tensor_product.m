@@ -8,7 +8,11 @@ function tp = tensor_product(mats)
     elseif ismatrix(mats(:,:,1))
         tp = mats(:,:,1);
         for i = 2:size(mats,3)
-           tp = kron(tp, mats(:,:,i)); 
+           mat = mats(:,:,i);
+           if nnz(mat) <= size(mat,1)*size(mat,2)/2
+               mat = sparse(mat);
+           end
+           tp = kron(tp, mat); 
         end
     end
 end
