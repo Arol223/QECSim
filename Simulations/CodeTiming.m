@@ -41,6 +41,7 @@ for i = 1:reps
 end
 t_mean(3) = mean(times);
 stdev(3) = std(times);
+DoneNotification()
 %% State prep bit- & phaseflip
 [cnot,cz,zgate,hadgate] = ChangeT2(150e-6,cnot,cz,zgate,hadgate);
 for i = 1:reps
@@ -50,7 +51,7 @@ for i = 1:reps
 end
 t_mean(4) = mean(times);
 stdev(4) = std(times);
-
+DoneNotification()
 %% State prep bit & phase with tol
 [cnot,cz,zgate,hadgate] = ChangeTol(1e-5,cnot,cz,zgate,hadgate);
 for i = 1:reps

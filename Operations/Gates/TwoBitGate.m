@@ -30,7 +30,7 @@ classdef TwoBitGate < handle
             if nargin < 4
                 obj.T2 = Inf;
             else
-               obj.T2 = T2; 
+                obj.T2 = T2;
             end
             if nargin < 3
                 obj.T1 = Inf;
@@ -55,16 +55,47 @@ classdef TwoBitGate < handle
             obj.error_probs = p;
         end
         
-          function err_from_T(obj)
-           p_biflip =  1 - exp(-obj.operation_time./obj.T1); 
-           p_phaseflip = 1 - exp(-obj.operation_time./obj.T2);
-           obj.error_probs = zeros(1,4);
-           obj.error_probs(2) = p_biflip;
-           obj.error_probs(4) = p_phaseflip;
-           obj.error_probs = [obj.error_probs;obj.error_probs];
+        function err_from_T(obj)
+            p_bitflip =  1 - exp(-obj.operation_time./obj.T1);
+            p_phaseflip = 1 - exp(-obj.operation_time./obj.T2);
+            obj.error_probs = zeros(4,4);
+            for i = 1:4
+                switch i
+                    case 1
+                        p1 = 1;
+                    case 2
+                        p1 = p_bitflip;
+                    case 3
+                        p1 = 0;
+                    case 4
+                        p1 = p_phaseflip;
+                end
+                for j = 1:4
+                    switch j
+                        case 1
+                            p2 = 1;
+                        case 2
+                            p2 = p_bitflip;
+                        case 3
+                            p2 = 0;
+                        case 4
+                            p2 = p_phaseflip;
+                    end
+                    if i==1 && j==1
+                        continue
+                    end
+                    obj.error_probs(i,j) = p1*p2;
+                    if obj.p_success < 0
+                        warning('Gate has negative success rate, check that T1,T2, and t_dur are reasonable')
+                    end
+                end
+            end
         end
         
         function res = get_err(obj, i, j, targets, nbits)
+            if targets(2)<targets(1)
+                targets = [targets(2) targets(1)];
+            end
             switch i
                 case 1
                     op1 = speye(2);
@@ -75,7 +106,7 @@ classdef TwoBitGate < handle
                 case 4
                     op1 = sparse([1 0;0 -1]); % Pauli Z
             end
-            switch j 
+            switch j
                 case 1
                     op2 = speye(2);
                 case 2
@@ -87,7 +118,7 @@ classdef TwoBitGate < handle
             end
             left = targets(1) - 1; % #bits 'left' of first bit.
             mid = targets(2) - targets(1) - 1; % #bits 'between' target/control
-            right = nbits - targets(2); % #bits 'right' of second bit 
+            right = nbits - targets(2); % #bits 'right' of second bit
             left = speye(2^left);
             mid = speye(2^mid);
             right = speye(2^right);
@@ -124,11 +155,11 @@ classdef TwoBitGate < handle
             if (obj.idle_state == 1 && obj.operation_time)
                 % Idles all bits even for sequential operations.
                 idles = [1:target-1, target+1:nbits];
-                rho = idle_bits(rho, idles, obj.operation_time, obj.T1,obj.T2);
+                res = idle_bits(res, idles, obj.operation_time, obj.T1,obj.T2);
             end
             
             if return_state
-                rho = NbitState(rho);
+                res = NbitState(res);
             end
         end
         function rho = apply(obj, nbitstate, targets,controls)
