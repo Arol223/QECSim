@@ -52,6 +52,7 @@ classdef SingleBitGate < handle
         function rand_error(obj, p_success)
             % Sets the probs of obj.error_probs at random to get success rate p_success
             p = rand(1,4);
+            p(1) = 0; % no identity error
             p = p./sum(p);
             p = p.*(1-p_success);
             obj.error_probs = p;
