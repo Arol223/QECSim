@@ -9,7 +9,7 @@ classdef SingleBitGate < handle
         idle_state % If 1, amplitude and phase damping are applied to all bits
         % that aren't operated on even when doing a sequential
         % operation on multiple bits. If 2, only bits that
-        % aren't operated on at all re idled.
+        % aren't operated on at all are idled.
     end
     
     properties (Dependent)
