@@ -22,7 +22,7 @@ end
 rho = NbitState.empty(8,0);
 p = zeros(8,1);
 
-for i = 1:8
+parfor i = 1:8
     syndrome = get_syndrome(i);
     [r_tmp, p_tmp] = measure_syndrome(nbitstate,block,Steanecode,type,...
         syndrome,e_init,e_readout,had_gate, CNot,CZ);

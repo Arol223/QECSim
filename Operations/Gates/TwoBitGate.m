@@ -46,7 +46,7 @@ classdef TwoBitGate < handle
             p = 1 - sum(obj.error_probs(:));
         end
         
-        function random_err(obj, p_err)
+        function rand_error(obj, p_err)
             % Sets random error probabilities that sum to p_err
             p = rand(4,4);
             p(1,1) = 0;
