@@ -46,6 +46,15 @@ classdef TwoBitGate < handle
             p = 1 - sum(obj.error_probs(:));
         end
         
+        function uni_err(obj,p_err)
+           % Set a uniform error rate with total prob p_err
+           p = ones(4,4);
+           p(1,1) = 1; % no identity comp. 
+           p = p./sum(p(:));
+           p = p.*p_err;
+           obj.error_probs = p;
+        end
+        
         function random_err(obj, p_err)
             % Sets random error probabilities that sum to p_err
             p = rand(4,4);
@@ -134,6 +143,18 @@ classdef TwoBitGate < handle
                 nbits = nbitstate.nbits;
                 nbitstate = nbitstate.rho;
                 return_state = 1;
+            elseif size(nbitstate,1) == 1
+                % Handles the case when rho is a bra
+                nbits = log2(length(nbitstate));
+                op = obj.get_op_el(nbits,target,control);
+                res = nbitstate*op';
+                return
+            elseif size(nbitstate,2) == 1
+                % Handles case when rho is a ket 
+                nbits = log2(length(nbitstate));
+                op = obj.get_op_el(nbits,target,control);
+                res = op*nbitstate;
+                return
             else
                 nbits = log2(size(nbitstate,1));
             end
@@ -163,11 +184,20 @@ classdef TwoBitGate < handle
             end
         end
         function rho = apply(obj, nbitstate, targets,controls)
+            % Applies the gate to a density matrix, nbitstate or state
+            % vector. The state vector is always returned without errors.
             return_state = 0;
             if isa(nbitstate, 'NbitState')
                 nbits = nbitstate.nbits;
                 nbitstate = nbitstate.rho;
                 return_state = 1;
+            elseif size(nbitstate,1) == 1 || size(nbitstate,2) == 1 % State vector
+               %Handles the case when nbitstate is a state vector 
+                rho = obj.apply_single(nbitstate,targets(1),controls(1));
+                for i = 2:length(targets)
+                    rho = obj.apply_single(rho,targets(i),controls(i));
+                end
+                return
             else
                 nbits = log2(size(nbitstate,1));
             end

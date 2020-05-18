@@ -49,6 +49,14 @@ classdef SingleBitGate < handle
             res = 1 - sum(obj.error_probs); % Probability for gate to not fail
         end
         
+        function uni_err(obj,p_err)
+            % Set a uniform error rate with total prob p_err
+           p = ones(1,4);
+           p(1) = 0; % No identity comp
+           p = p./sum(p(:));
+           p = p.*p_err;
+           obj.error_probs = p;
+        end
         function rand_error(obj, p_err)
             % Sets the probs of obj.error_probs at random to get success rate p_success
             p = rand(1,4);
@@ -95,12 +103,25 @@ classdef SingleBitGate < handle
         
         function rho = apply_single(obj, nbitstate, target)
             % Applies the gate with errors to target bit. Gate applied
-            % first, then each type of error
+            % first, then each type of error. If nbitstate is a vector gate
+            % is applied without errors.
             return_state = 0;
             if isa(nbitstate,'NbitState')
                 nbits = nbitstate.nbits;
                 nbitstate = nbitstate.rho;
                 return_state = 1;
+            elseif size(nbitstate,1) == 1
+                %Handles case when nbitstate is a bra
+                nbits = log2(length(nbitstate));
+                op = obj.get_op_el(nbits,target);
+                rho = nbitstate*op';
+                return
+            elseif size(nbitstate,2) == 1
+                % handles case when nbitstate is a bra
+                nbits = log2(length(nbitstate));
+                op = obj.get_op_el(nbits,target);
+                rho = op*nbitstate;
+                return
             else
                 nbits = log2(size(nbitstate,1));
             end
@@ -132,12 +153,19 @@ classdef SingleBitGate < handle
         
         function rho = apply(obj, nbitstate, targets, ~)
             % Applies the gate sequentially to bits in targets, including
+            % errors. If nbitstate is a vector, it applies the gate without
             % errors.
             return_state = 0;
             if isa(nbitstate, 'NbitState')
                 nbits = nbitstate.nbits;
                 nbitstate = nbitstate.rho;
                 return_state = 1;
+            elseif size(nbitstate,1) == 1 || size(nbitstate,2) == 1
+                rho = obj.apply_single(nbitstate,targets(1));
+                for i = 2:length(targets)
+                    rho = obj.apply(rho,targets(i));
+                end
+                return
             else
                 nbits = log2(size(nbitstate,1));
             end
