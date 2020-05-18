@@ -41,7 +41,7 @@ for i = 1:reps
 end
 t_mean(3) = mean(times);
 stdev(3) = std(times);
-DoneNotification()
+%DoneNotification()
 %% State prep bit- & phaseflip
 [cnot,cz,zgate,hadgate] = ChangeT2(150e-6,cnot,cz,zgate,hadgate);
 for i = 1:reps
@@ -51,7 +51,7 @@ for i = 1:reps
 end
 t_mean(4) = mean(times);
 stdev(4) = std(times);
-DoneNotification()
+%DoneNotification()
 %% State prep bit & phase with tol
 [cnot,cz,zgate,hadgate] = ChangeTol(1e-5,cnot,cz,zgate,hadgate);
 for i = 1:reps
@@ -109,7 +109,7 @@ t_tol(6) = mean(times);
 stdev_tol(6) = std(times);
 fid(6) = Fidelity(rtot,r);
 
-DoneNotification();
+%DoneNotification();
 %% State prep bit and phaseflip with idling 1&2
 [cnot,cz,zgate,hadgate] = ChangeTol(0,cnot,cz,zgate,hadgate);
 [cnot,cz,zgate,hadgate] = SetIdleState(1,cnot,cz,zgate,hadgate);
@@ -133,7 +133,7 @@ stdevidle(2) = std(times);
 
 
 
-DoneNotification();
+%DoneNotification();
 %% State prep bit & phase with idle1 & tol
 [cnot,cz,zgate,hadgate] = SetIdleState(1,cnot,cz,zgate,hadgate);
 [cnot,cz,zgate,hadgate] = ChangeTol(1e-5,cnot,cz,zgate,hadgate);
@@ -193,7 +193,7 @@ t_tol_idle1(6) = mean(times);
 stdev_tol_idle1(6) = std(times);
 fid_idle1(6) = Fidelity(rtot,r);
 
-DoneNotification();
+%DoneNotification();
 %% State prep bit & phase with idle2 & tol
 [cnot,cz,zgate,hadgate] = SetIdleState(2,cnot,cz,zgate,hadgate);
 [cnot,cz,zgate,hadgate] = ChangeTol(1e-5,cnot,cz,zgate,hadgate);
@@ -252,4 +252,4 @@ t_tol_idle2(6) = mean(times);
 stdev_tol_idle2(6) = std(times);
 fid_idle2(6) = Fidelity(rtot,r);
 
-DoneNotification();
+%DoneNotification();

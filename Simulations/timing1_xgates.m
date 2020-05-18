@@ -85,7 +85,7 @@ for i = 1:X % Get time for 1-X gates
     SEM(i) = std(times)/sqrt(sample_sz);
     
 end
-DoneNotification()
+%DoneNotification()
 
 %% plotting
 figure(2)
