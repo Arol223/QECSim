@@ -3,12 +3,13 @@
 clear variables
 close all
 T1 = 2e-3; %T1 for Eu
-T2 = linspace(2e-6,2*T1,2000);
-[~,~,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2(1),3.36e-6*ones(1,6),0,0);
+T2 = linspace(T1,4*T1,2000);
+[~,~,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2(1),3.36e-6*ones(1,6),0,1);
 [~,~,xg,yg,zg,hg] = MakeGates(Inf,Inf,zeros(1,6),0,0); %Gates without errors
 %% XGate fidelity
 rho = NbitState([1,0;0,0]); %Testing state starting in |0>
-targ = NbitState([0,0;0,1]); %Target state for x acting on |0>
+rho = rho*rho; 
+targ = xg.apply(rho,1);%Target state for x acting on |0>
 xfid = zeros(1,length(T2));
 for i = 1:length(T2)
     xgate = ChangeT2(T2(i),xgate);

@@ -5,8 +5,8 @@ ngates = 10;
 
 rho = NbitState([1 0;0 0]);
 rho = h.apply(rho,1);
-rho = rho*rho; % Test state (|0>+|1>)x(|0>+|1>)
-T2_range = linspace(2e-6,2*T1,2000);
+rho = rho*rho*rho; % Test state (|0>+|1>)x(|0>+|1>)x...
+T2_range = linspace(T1,4*T1,2000);
 fid = zeros(1,length(T2_range));
 for i = 1:length(T2_range)
     [cnot,cz] = ChangeT2(T2_range(i),cnot,cz);
@@ -17,8 +17,8 @@ for i = 1:length(T2_range)
         pick = gates(j);
         switch pick
             case 1 
-                gate = cnot;
-                cg = cnot2;
+                gate = cz;
+                cg = cz2;
             case 2
                 gate = cz;
                 cg = cz2;
@@ -30,6 +30,7 @@ for i = 1:length(T2_range)
 end
 DoneNotification()
 %% Plotting
+figure(1)
 plot(T2_range,fid)
 xlabel('T2 [s]')
 ylabel('Fidelity')
@@ -40,8 +41,9 @@ title('Fidelity as function of T2 for 10 random 2-qubit gates')
 warning('off','MATLAB:sqrtm:SingularMatrix') %Matrices are singular but have roots..
 T2 = T1;
 [cnot,cz] = ChangeT2(T2,cnot,cz);
-error_rate = 0:1e-5:1e-2;
+error_rate = 0:1e-9:1e-5;
 fid = zeros(1,length(error_rate));
+ngates = 1;
 for i = 1:length(error_rate)
     cnot.random_err(error_rate(i));
     cz.random_err(error_rate(i));
@@ -52,8 +54,8 @@ for i = 1:length(error_rate)
         pick = gates(j);
         switch pick
             case 1 
-                gate = cnot;
-                cg = cnot2;
+                gate = cz;
+                cg = cz2;
             case 2
                 gate = cz;
                 cg = cz2;
@@ -65,6 +67,7 @@ for i = 1:length(error_rate)
 end
 DoneNotification()
 %% Plotting
+figure(2)
 plot(error_rate,fid)
 xlabel('error rate')
 ylabel('Fidelity')
