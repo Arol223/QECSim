@@ -3,7 +3,7 @@ classdef TwoBitGate < handle
     %   Detailed explanation goes here
     
     properties
-        error_probs; %4x4 vector containing error_probs for target bit and
+        error_probs; %4x4 matrix containing error_probs for target and control bits. Index corresponds to pauli sigma matrix.
         operation_time
         tol % Tolerance of gate. Returned state will not have elements < tol
         idle_state %0,1 or 2, determines whether to idle bits and how to do it, see SingleBitGate

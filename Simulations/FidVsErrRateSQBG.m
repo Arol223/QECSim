@@ -69,8 +69,8 @@ parfor i = 1:length(error_rate)
     zgate.uni_err(err);
     hadgate.uni_err(err);
     rtmp = SteaneLogicalGate(rho4,xgate,1);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'X',3e-6,2e-3,hadgate,cnot,zgate,cz);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',3e-6,2e-3,hadgate,cnot,xgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,2e-3,hadgate,cnot,zgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,2e-3,hadgate,cnot,xgate,cz);
     fid4(i) = Fid2(psi4,rtmp);
 end
 %%
@@ -92,8 +92,8 @@ parfor i = 1:length(error_rate)
     zgate.uni_err(err);
     hadgate.uni_err(err);
     rtmp = SteaneLogicalGate(rho5,xgate,1);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'X',3e-6,2e-3,hadgate,cnot,zgate,cz);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',3e-6,2e-3,hadgate,cnot,xgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,2e-3,hadgate,cnot,zgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,2e-3,hadgate,cnot,xgate,cz);
     fid5(i) = Fid2(psi5,rtmp);
 end
 loglog(error_rate,fid5);
@@ -117,8 +117,8 @@ parfor i = 1:length(error_rate)
     zgate.uni_err(err);
     hadgate.uni_err(err);
     rtmp = SteaneLogicalGate(rho6,xgate,1);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'X',3e-6,0,hadgate,cnot,zgate,cz);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',3e-6,0,hadgate,cnot,xgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,0,hadgate,cnot,zgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,0,hadgate,cnot,xgate,cz);
     fid6(i) = Fid2(psi6,rtmp);
 end
 loglog(error_rate,fid6);
@@ -141,10 +141,12 @@ parfor i = 1:length(error_rate)
     zgate.uni_err(err);
     hadgate.uni_err(err);
     rtmp = SteaneLogicalGate(rho7,xgate,1);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'X',3e-6,0,hadgate,cnot,zgate,cz);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',3e-6,0,hadgate,cnot,xgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,0,hadgate,cnot,zgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,0,hadgate,cnot,xgate,cz);
     fid7(i) = Fid2(psi7,rtmp);
 end
+
+%% Full ec, no init error
 loglog(error_rate,fid7);
 legend('Physical Single Qubit Gate', 'Physical 2 Qubit Gate',...
     'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC',...
