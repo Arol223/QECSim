@@ -69,5 +69,69 @@ parfor i = 1:length(error_rate)
 end
 %%
 loglog(error_rate,fid4);
+
+%% Logical SQBG w/ EC no idle
+rho5 = rho4;
+psi5 = psi4;
+fid5 = zeros(size(error_rate));
+[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7e-6*[1 1] 3e-6*[1 1 1 1]],0,0);
+parfor i = 1:length(error_rate)
+   err = error_rate(i);
+   cnot.uni_err(4*err); % 3 times error rate for 2 qubit gates
+   cz.uni_err(4*err);
+   xgate.uni_err(err);
+   zgate.uni_err(err);
+   hadgate.uni_err(err);
+   rtmp = SteaneLogicalGate(rho5,xgate,1);
+   [rtmp,~] = Correct_steane_error(rtmp,1,'X',3e-6,2e-3,hadgate,cnot,zgate,cz);
+   [rtmp,~] = Correct_steane_error(rtmp,1,'Z',3e-6,2e-3,hadgate,cnot,xgate,cz);
+   fid5(i) = Fid2(psi5,rtmp);
+end
+loglog(error_rate,fid5);
 legend('Physical Single Qubit Gate', 'Physical 2 Qubit Gate',...
-    'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC')
+    'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC',...
+    'Logical SQBG, EC, no idling')
+
+%% Logical, no readout err
+[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7e-6*[1 1] 3e-6*[1 1 1 1]],0,2);
+rho6 = rho5;
+psi6 = psi5;
+fid6 = zeros(size(error_rate));
+parfor i = 1:length(error_rate)
+   err = error_rate(i);
+   cnot.uni_err(4*err); % 3 times error rate for 2 qubit gates
+   cz.uni_err(4*err);
+   xgate.uni_err(err);
+   zgate.uni_err(err);
+   hadgate.uni_err(err);
+   rtmp = SteaneLogicalGate(rho6,xgate,1);
+   [rtmp,~] = Correct_steane_error(rtmp,1,'X',3e-6,0,hadgate,cnot,zgate,cz);
+   [rtmp,~] = Correct_steane_error(rtmp,1,'Z',3e-6,0,hadgate,cnot,xgate,cz);
+   fid6(i) = Fid2(psi6,rtmp);
+end
+loglog(error_rate,fid6);
+legend('Physical Single Qubit Gate', 'Physical 2 Qubit Gate',...
+    'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC',...
+    'Logical SQBG, EC, no idling', 'Logical SQBG, EC, no readout error')
+%%
+rho7 = rho4;
+psi7 = psi4;
+fid7 = zeros(size(error_rate));
+[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7e-6*[1 1] 3e-6*[1 1 1 1]],0,0);
+parfor i = 1:length(error_rate)
+   err = error_rate(i);
+   cnot.uni_err(4*err); % 3 times error rate for 2 qubit gates
+   cz.uni_err(4*err);
+   xgate.uni_err(err);
+   zgate.uni_err(err);
+   hadgate.uni_err(err);
+   rtmp = SteaneLogicalGate(rho7,xgate,1);
+   [rtmp,~] = Correct_steane_error(rtmp,1,'X',3e-6,0,hadgate,cnot,zgate,cz);
+   [rtmp,~] = Correct_steane_error(rtmp,1,'Z',3e-6,0,hadgate,cnot,xgate,cz);
+   fid7(i) = Fid2(psi7,rtmp);
+end
+loglog(error_rate,fid7);
+legend('Physical Single Qubit Gate', 'Physical 2 Qubit Gate',...
+    'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC',...
+    'Logical SQBG, EC, no idling', 'Logical SQBG, EC, no readout error',...
+    'Logical SQBG, EC, no idle or readout')
