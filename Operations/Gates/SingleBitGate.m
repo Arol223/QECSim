@@ -67,11 +67,12 @@ classdef SingleBitGate < handle
         end
         
         function err_from_T(obj)
-            p_biflip = 1 - exp(-obj.operation_time./obj.T1);
+            p_bitflip = 1 - exp(-obj.operation_time./obj.T1);
             p_phaseflip = 1 - exp(-obj.operation_time./obj.T2);
             obj.error_probs = zeros(1,4);
-            obj.error_probs(2) = p_biflip;
-            obj.error_probs(4) = p_phaseflip;
+            obj.error_probs(2) = p_bitflip; %X-error
+            obj.error_probs(3) = p_bitflip*p_phaseflip;%Y-error
+            obj.error_probs(4) = p_phaseflip;%Z-error
         end
         
         function res = get_err(obj, i, target, nbits)

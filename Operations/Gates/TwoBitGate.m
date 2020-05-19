@@ -67,38 +67,9 @@ classdef TwoBitGate < handle
         function err_from_T(obj)
             p_bitflip =  1 - exp(-obj.operation_time./obj.T1);
             p_phaseflip = 1 - exp(-obj.operation_time./obj.T2);
-            obj.error_probs = zeros(4,4);
-            for i = 1:4
-                switch i
-                    case 1
-                        p1 = 1;
-                    case 2
-                        p1 = p_bitflip;
-                    case 3
-                        p1 = 0;
-                    case 4
-                        p1 = p_phaseflip;
-                end
-                for j = 1:4
-                    switch j
-                        case 1
-                            p2 = 1;
-                        case 2
-                            p2 = p_bitflip;
-                        case 3
-                            p2 = 0;
-                        case 4
-                            p2 = p_phaseflip;
-                    end
-                    if i==1 && j==1
-                        continue
-                    end
-                    obj.error_probs(i,j) = p1*p2;
-                    if obj.p_success < 0
-                        warning('Gate has negative success rate, check that T1,T2, and t_dur are reasonable')
-                    end
-                end
-            end
+            p_e_single = p_bitflip+p_phaseflip+p_bitflip*p_phaseflip; %error rate for SQBG
+            p_err = 4*p_e_single; % Total error rate is 4 times that of SQBG
+            obj.uni_err(p_err); % Equal probability for all errrors
         end
         
         function res = get_err(obj, i, j, targets, nbits)
