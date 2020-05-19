@@ -42,11 +42,12 @@ for i = 1:length(T2_short)
     fid_short(3,i) = Fid(psi3,rtmp);
 end
 
-%% Logical SQBG with EC, no idle
+%% Logical SQBG w/ EC 
+
 psi4 = psi3;
 rho4 = rho3;
 parfor i = 1:length(T2_short)   
-[cnot,cz,xg,~,zg,hg] = MakeGates(T1,Inf,t_dur_tot,0,0);
+[cnot,cz,xg,~,zg,hg] = MakeGates(T1,Inf,t_dur_tot,0,2);
 [cnot,cz,xg,zg,hg] = ChangeT2(T2(i),cnot,cz,xg,zg,hg);
 e_init = 1-xg.p_success;
 rtmp = SteaneLogicalGate(rho4,xg,1);
@@ -54,26 +55,24 @@ rtmp = Correct_steane_error(rtmp,1,'X',e_init,e_readout,hg,cnot,zg,cz);
 rtmp = Correct_steane_error(rtmp,1,'Z',e_init,e_readout,hg,cnot,xg,cz);
 fid_short(4,i) = Fid(psi4,rtmp);
 end
-
-%% Logical SQBG with EC, e_readout = e_gate
+%% Logical SQBG with EC, no idle
 psi5 = psi3;
 rho5 = rho3;
 parfor i = 1:length(T2_short)   
-[cnot,cz,xg,~,zg,hg] = MakeGates(T1,Inf,t_dur_tot,0,2);
+[cnot,cz,xg,~,zg,hg] = MakeGates(T1,Inf,t_dur_tot,0,0);
 [cnot,cz,xg,zg,hg] = ChangeT2(T2(i),cnot,cz,xg,zg,hg);
 e_init = 1-xg.p_success;
-e_readout = e_init;
 rtmp = SteaneLogicalGate(rho5,xg,1);
 rtmp = Correct_steane_error(rtmp,1,'X',e_init,e_readout,hg,cnot,zg,cz);
 rtmp = Correct_steane_error(rtmp,1,'Z',e_init,e_readout,hg,cnot,xg,cz);
 fid_short(5,i) = Fid(psi5,rtmp);
 end
 
-%% Logical SQBG with EC, e_readout = e_gate, no idle
+%% Logical SQBG with EC, e_readout = e_gate
 psi6 = psi3;
 rho6 = rho3;
 parfor i = 1:length(T2_short)   
-[cnot,cz,xg,~,zg,hg] = MakeGates(T1,Inf,t_dur_tot,0,0);
+[cnot,cz,xg,~,zg,hg] = MakeGates(T1,Inf,t_dur_tot,0,2);
 [cnot,cz,xg,zg,hg] = ChangeT2(T2(i),cnot,cz,xg,zg,hg);
 e_init = 1-xg.p_success;
 e_readout = e_init;
@@ -81,6 +80,20 @@ rtmp = SteaneLogicalGate(rho6,xg,1);
 rtmp = Correct_steane_error(rtmp,1,'X',e_init,e_readout,hg,cnot,zg,cz);
 rtmp = Correct_steane_error(rtmp,1,'Z',e_init,e_readout,hg,cnot,xg,cz);
 fid_short(6,i) = Fid(psi6,rtmp);
+end
+
+%% Logical SQBG with EC, e_readout = e_gate, no idle
+psi7 = psi3;
+rho7 = rho3;
+parfor i = 1:length(T2_short)   
+[cnot,cz,xg,~,zg,hg] = MakeGates(T1,Inf,t_dur_tot,0,0);
+[cnot,cz,xg,zg,hg] = ChangeT2(T2(i),cnot,cz,xg,zg,hg);
+e_init = 1-xg.p_success;
+e_readout = e_init;
+rtmp = SteaneLogicalGate(rho7,xg,1);
+rtmp = Correct_steane_error(rtmp,1,'X',e_init,e_readout,hg,cnot,zg,cz);
+rtmp = Correct_steane_error(rtmp,1,'Z',e_init,e_readout,hg,cnot,xg,cz);
+fid_short(7,i) = Fid(psi7,rtmp);
 end
 
 
