@@ -35,6 +35,7 @@ for i = 1:length(error_rate)
     tmprho = cnot.apply(rho2,2,1); % bit 1 is control, bit 2 is target
     fid2(i) = Fid2(psi2,tmprho);
 end
+%%
 hold on
 loglog(error_rate,fid2)
 
@@ -47,6 +48,7 @@ for i = 1:length(error_rate)
     rtmp = SteaneLogicalGate(rho3,xgate,1);
     fid3(i) = Fid2(psi3,rtmp);
 end
+%%
 loglog(error_rate,fid3)
 
 %% Logical SQBG with EC
@@ -65,6 +67,7 @@ parfor i = 1:length(error_rate)
    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',3e-6,2e-3,hadgate,cnot,xgate,cz);
    fid4(i) = Fid2(psi4,rtmp);
 end
+%%
 loglog(error_rate,fid4);
 legend('Physical Single Qubit Gate', 'Physical 2 Qubit Gate',...
     'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC')
