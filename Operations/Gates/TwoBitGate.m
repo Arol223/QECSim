@@ -68,7 +68,13 @@ classdef TwoBitGate < handle
             p_bitflip =  1 - exp(-obj.operation_time./obj.T1);
             p_phaseflip = 1 - exp(-obj.operation_time./obj.T2);
             p_e_single = p_bitflip+p_phaseflip+p_bitflip*p_phaseflip; %error rate for SQBG
-            p_err = 4*p_e_single; % Total error rate is 4 times that of SQBG
+            p_succ = 1-p_e_single;
+            p_succ = p_succ^4; % Two bit gate consists of 4 single bit operations so this should be accurate for the error rate
+            p_err = 1-p_succ;
+            if p_err > 1
+                p_err = 1;
+                warning('For current values of T1, T2, and t_dur the probability for error is 100%')
+            end
             obj.uni_err(p_err); % Equal probability for all errrors
         end
         
