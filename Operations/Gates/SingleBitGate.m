@@ -49,11 +49,13 @@ classdef SingleBitGate < handle
             res = 1 - sum(obj.error_probs); % Probability for gate to not fail
         end
         
+        function set_err(obj,p_bit,p_phase)
+            obj.error_probs = [0,p_bit,p_bit*p_phase,p_phase];
+        end
         function uni_err(obj,p_err)
-            % Set a uniform error rate with total prob p_err
-           p = ones(1,4);
-           p(1) = 0; % No identity comp
-           p = p./sum(p(:));
+            % Set the errors so that the total error rate is p_err
+           p = [0, p_err,p_err^2,p_err];
+           p = p./sum(p);
            p = p.*p_err;
            obj.error_probs = p;
         end
@@ -80,7 +82,7 @@ classdef SingleBitGate < handle
                 case 1
                     op = sparse([0 1;1 0]); %Pauli X
                 case 2
-                    op = sparse([0 -1i; 1i 0]); % Pauli Y
+                    op = sparse([0 1; -1 0]); % Pauli Y*i
                 case 3
                     op = sparse([1 0;0 -1]); % Pauli Z
             end
@@ -129,9 +131,6 @@ classdef SingleBitGate < handle
             op = obj.get_op_el(nbits, target);
             
             rho = (op*nbitstate)*(obj.p_success*op'); %Succesful op
-            if obj.error_probs(1)
-                rho = rho + obj.error_probs(1).*nbitstate;  %Identity error
-            end
             for i  = 1:3
                 if obj.error_probs(i+1)
                     op = obj.get_err(i,target,nbits); %Pauli Errors
@@ -141,10 +140,12 @@ classdef SingleBitGate < handle
                 end
             end
             
-            if (obj.idle_state == 1 && obj.operation_time)
+            if (obj.idle_state == 1)
                 % Idles all bits even for sequential operations.
+                c_bit = obj.error_probs(2); %Coeff for bitflip, used for amp damping
+                c_phase = obj.error_probs(4); %Coeff for phaseflip, used for phase damping
                 idles = [1:target-1, target+1:nbits];
-                rho = idle_bits(rho, idles, obj.operation_time, obj.T1,obj.T2);
+                rho = idle_bits(rho, idles,c_bit, c_phase);
             end
             
             if return_state
@@ -175,10 +176,12 @@ classdef SingleBitGate < handle
                 rho = obj.apply_single(rho, targets(i));
             end
             
-            if (obj.idle_state == 2 && obj.operation_time)
+            if (obj.idle_state == 2)
                 idles = remove_dupes(targets, 1:nbits);
                 if ~isempty(idles)
-                    rho = idle_bits(rho, idles, obj.operation_time, obj.T1, obj.T2);
+                    c_bit = obj.error_probs(2);
+                    c_phase = obj.error_probs(4);
+                    rho = idle_bits(rho, idles, c_bit,c_phase);
                 end
             end
             % Following 2 lines remove elements <tol

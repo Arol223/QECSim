@@ -46,13 +46,48 @@ classdef TwoBitGate < handle
             p = 1 - sum(obj.error_probs(:));
         end
         
+        function set_err(obj, p_bit,p_phase)
+            % Set the error rate for bit and phase flip errors. Probability
+            % of Y-error is p_bit*p_phase, and combined errors on both bits
+            % use P(s_i x s_j) = P(s_i)*P(s_j)
+            p_err = ones(4,4);
+            for i = 1:4
+                switch i
+                    case 1
+                        p = 1; % no error
+                    case 2
+                        p = p_bit;   %bitflip on control
+                    case 3
+                        p = p_phase*p_bit;   % bit and phaseflip on control
+                    case 4
+                        p = p_phase; %phase flip on control
+                end
+                for j = 1:4
+                    switch j
+                        case 1 
+                            p_err(i,j) = p;
+                        case 2
+                            p_err(i,j) = p*p_bit;
+                        case 3
+                            p_err(i,j) = p*p_bit*p_phase;
+                        case 4
+                            p_err(i,j) = p*p_phase;
+                    end
+                   
+                end
+            end
+            p_err(1,1) = 0;
+            obj.error_probs = p_err;
+        end
+        
         function uni_err(obj,p_err)
-           % Set a uniform error rate with total prob p_err
-           p = ones(4,4);
-           p(1,1) = 1; % no identity comp. 
-           p = p./sum(p(:));
-           p = p.*p_err;
-           obj.error_probs = p;
+           %Old and not in use
+            p_sing = [p_err p_err^2 p_err]; % Error rate for sqbg
+            p_sing = p_sing./sum(p_sing);
+            p_sing = p_sing.*p_err;
+            p_bit = p_sing(1);
+            p_phase = p_sing(1);
+            obj.set_err(p_bit,p_phase);
         end
         
         function random_err(obj, p_err)
@@ -65,17 +100,9 @@ classdef TwoBitGate < handle
         end
         
         function err_from_T(obj)
-            p_bitflip =  1 - exp(-obj.operation_time./obj.T1);
-            p_phaseflip = 1 - exp(-obj.operation_time./obj.T2);
-            p_e_single = p_bitflip+p_phaseflip+p_bitflip*p_phaseflip; %error rate for SQBG
-            p_succ = 1-p_e_single;
-            p_succ = p_succ^4; % Two bit gate consists of 4 single bit operations so this should be accurate for the error rate
-            p_err = 1-p_succ;
-            if p_err > 1
-                p_err = 1;
-                warning('For current values of T1, T2, and t_dur the probability for error is 100%')
-            end
-            obj.uni_err(p_err); % Equal probability for all errrors
+            p_bit =  1 - exp(-obj.operation_time./obj.T1);
+            p_phase = 1 - exp(-obj.operation_time./obj.T2);
+            obj.set_err(p_bit,p_phase); % Correct probabilities
         end
         
         function res = get_err(obj, i, j, targets, nbits)
@@ -88,7 +115,7 @@ classdef TwoBitGate < handle
                 case 2
                     op1 = sparse([0 1;1 0]); %Pauli X
                 case 3
-                    op1 = sparse([0 -1i; 1i 0]); % Pauli Y
+                    op1 = sparse([0 1; -1 0]); % Pauli Y*i
                 case 4
                     op1 = sparse([1 0;0 -1]); % Pauli Z
             end
@@ -98,7 +125,7 @@ classdef TwoBitGate < handle
                 case 2
                     op2 = sparse([0 1;1 0]); %Pauli X
                 case 3
-                    op2 = sparse([0 -1i; 1i 0]); % Pauli Y
+                    op2 = sparse([0 1; -1 0]); % Pauli Y*i
                 case 4
                     op2 = sparse([1 0;0 -1]); % Pauli Z
             end
@@ -127,7 +154,7 @@ classdef TwoBitGate < handle
                 res = nbitstate*op';
                 return
             elseif size(nbitstate,2) == 1
-                % Handles case when rho is a ket 
+                % Handles case when rho is a ket
                 nbits = log2(length(nbitstate));
                 op = obj.get_op_el(nbits,target,control);
                 res = op*nbitstate;
@@ -150,10 +177,12 @@ classdef TwoBitGate < handle
                 end
             end
             
-            if (obj.idle_state == 1 && obj.operation_time)
+            if (obj.idle_state == 1)
                 % Idles all bits even for sequential operations.
+                c_bit = obj.error_probs(1,2);
+                c_phase = obj.error_probs(1,4);
                 idles = [1:target-1, target+1:nbits];
-                res = idle_bits(res, idles, obj.operation_time, obj.T1,obj.T2);
+                res = idle_bits(res, idles, c_bit,c_phase);
             end
             
             if return_state
@@ -169,7 +198,7 @@ classdef TwoBitGate < handle
                 nbitstate = nbitstate.rho;
                 return_state = 1;
             elseif size(nbitstate,1) == 1 || size(nbitstate,2) == 1 % State vector
-               %Handles the case when nbitstate is a state vector 
+                %Handles the case when nbitstate is a state vector
                 rho = obj.apply_single(nbitstate,targets(1),controls(1));
                 for i = 2:length(targets)
                     rho = obj.apply_single(rho,targets(i),controls(i));
@@ -186,7 +215,9 @@ classdef TwoBitGate < handle
             if (obj.idle_state == 2 && obj.operation_time)
                 idles = remove_dupes(unique([targets, controls]), 1:nbits);
                 if ~isempty(idles)
-                    rho = idle_bits(rho, idles, obj.operation_time, obj.T1, obj.T2);
+                    c_bit = obj.error_probs(1,2);
+                    c_phase = obj.error_probs(1,4);
+                    rho = idle_bits(rho, idles, c_bit,c_phase);
                 end
             end
             

@@ -5,14 +5,14 @@ T2 = 2e-3;
 error_rate = linspace(-9,-2,70);
 had = (1/sqrt(2)).*[1 1;1 -1];
 x = [0 1;1 0];
-error_rate = 10.^error_rate;
+error_rate = (10.^error_rate)./2;
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,2);
 rho1 = NbitState([1 0;0 0]);
 psi1 = [1;0];
 psi1 = x*psi1;
 fid1 = zeros(size(error_rate));
 for i = 1:length(error_rate)
-    xgate.uni_err(error_rate(i)); % Sets a uniform error rate
+    xgate.set_err(error_rate(i),error_rate(i)); % Sets a uniform error rate
     tmprho = xgate.apply(rho1,1);
     fid1(i) = Fid2(psi1,tmprho);
 end
@@ -34,7 +34,7 @@ for i = 1:length(error_rate)
     p_succ = 1-error_rate(i);
     p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
     p_err = 1 - p_succ;
-    cnot.uni_err(p_err); % set error rate
+    cnot.set_err(p_err,p_err); % set error rate
     tmprho = cnot.apply(rho2,2,1); % bit 1 is control, bit 2 is target
     fid2(i) = Fid2(psi2,tmprho);
 end
@@ -47,7 +47,7 @@ loglog(error_rate,fid2)
 psi3 = SteaneLogicalGate(psi3,xgate,1);
 fid3 = zeros(size(error_rate));
 for i = 1:length(error_rate)
-    xgate.uni_err(error_rate(i))
+    xgate.set_err(error_rate(i),error_rate(i))
     rtmp = SteaneLogicalGate(rho3,xgate,1);
     fid3(i) = Fid2(psi3,rtmp);
 end
@@ -63,11 +63,11 @@ parfor i = 1:length(error_rate)
     p_succ = 1-err;
     p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
     p_err2 = 1 - p_succ;
-    cnot.uni_err(p_err2); % set error rate
-    cz.uni_err(p_err2);
-    xgate.uni_err(err);
-    zgate.uni_err(err);
-    hadgate.uni_err(err);
+    cnot.set_err(p_err2,p_err2); % set error rate
+    cz.set_err(p_err2,p_err2);
+    xgate.set_err(err,err);
+    zgate.set_err(err,err);
+    hadgate.set_err(err,err);
     rtmp = SteaneLogicalGate(rho4,xgate,1);
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,1e-3,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,1e-3,hadgate,cnot,xgate,cz);
@@ -76,7 +76,7 @@ end
 %%
 loglog(error_rate,fid4);
 
-%% Logical SQBG w/ EC no idle
+%% Logical SQBG w/ EC e_readout=e_gate
 rho5 = rho4;
 psi5 = psi4;
 fid5 = zeros(size(error_rate));
@@ -86,14 +86,14 @@ parfor i = 1:length(error_rate)
     p_succ = 1-err;
     p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
     p_err2 = 1 - p_succ;
-    cnot.uni_err(p_err2); % set error rate
-    cz.uni_err(p_err2);
-    xgate.uni_err(err);
-    zgate.uni_err(err);
-    hadgate.uni_err(err);
+    cnot.set_err(p_err2,p_err2); % set error rate
+    cz.set_err(p_err2,p_err2);
+    xgate.set_err(err,err);
+    zgate.set_err(err,err);
+    hadgate.set_err(err,err);
     rtmp = SteaneLogicalGate(rho5,xgate,1);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,1e-3,hadgate,cnot,zgate,cz);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,1e-3,hadgate,cnot,xgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,err,hadgate,cnot,zgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,err,hadgate,cnot,xgate,cz);
     fid5(i) = Fid2(psi5,rtmp);
 end
 loglog(error_rate,fid5);
@@ -111,11 +111,11 @@ parfor i = 1:length(error_rate)
     p_succ = 1-err;
     p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
     p_err2 = 1 - p_succ;
-    cnot.uni_err(p_err2); % set error rate
-    cz.uni_err(p_err2);
-    xgate.uni_err(err);
-    zgate.uni_err(err);
-    hadgate.uni_err(err);
+    cnot.set_err(p_err2,p_err2); % set error rate
+    cz.set_err(p_err2,p_err2);
+    xgate.set_err(err,err);
+    zgate.set_err(err,err);
+    hadgate.set_err(err,err);
     rtmp = SteaneLogicalGate(rho6,xgate,1);
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,0,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,0,hadgate,cnot,xgate,cz);
@@ -135,11 +135,11 @@ parfor i = 1:length(error_rate)
     p_succ = 1-err;
     p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
     p_err2 = 1 - p_succ;
-    cnot.uni_err(p_err2); % set error rate
-    cz.uni_err(p_err2);
-    xgate.uni_err(err);
-    zgate.uni_err(err);
-    hadgate.uni_err(err);
+    cnot.set_err(p_err2,p_err2); % set error rate
+    cz.set_err(p_err2,p_err2);
+    xgate.set_err(err,err);
+    zgate.set_err(err,err);
+    hadgate.set_err(err,err);
     rtmp = SteaneLogicalGate(rho7,xgate,1);
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',0,0,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,0,hadgate,cnot,xgate,cz);
@@ -155,11 +155,11 @@ parfor i = 1:length(error_rate)
     p_succ = 1-err;
     p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
     p_err2 = 1 - p_succ;
-    cnot.uni_err(p_err2); % set error rate
-    cz.uni_err(p_err2);
-    xgate.uni_err(err);
-    zgate.uni_err(err);
-    hadgate.uni_err(err);
+    cnot.set_err(p_err2,p_err2); % set error rate
+    cz.set_err(p_err2,p_err2);
+    xgate.set_err(err,err);
+    zgate.set_err(err,err);
+    hadgate.set_err(err,err);
     rtmp = SteaneLogicalGate(rho8,xgate,1);
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',0,0,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',0,0,hadgate,cnot,xgate,cz);
@@ -177,9 +177,9 @@ parfor i = 1:length(error_rate)
     p_err2 = 0;
     cnot.uni_err(p_err2); % set error rate
     cz.uni_err(p_err2);
-    xgate.uni_err(err);
-    zgate.uni_err(err);
-    hadgate.uni_err(err);
+    xgate.set_err(err,err);
+    zgate.set_err(err,err);
+    hadgate.set_err(err,err);
     rtmp = SteaneLogicalGate(rho9,xgate,1);
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,err,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,err,hadgate,cnot,xgate,cz);
@@ -197,9 +197,9 @@ parfor i = 1:length(error_rate)
     p_err2 = 0;
     cnot.uni_err(p_err2); % set error rate
     cz.uni_err(p_err2);
-    xgate.uni_err(err);
-    zgate.uni_err(err);
-    hadgate.uni_err(err);
+    xgate.set_err(err,err);
+    zgate.set_err(err,err);
+    hadgate.set_err(err,err);
     rtmp = SteaneLogicalGate(rho10,xgate,1);
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',0,0,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',0,0,hadgate,cnot,xgate,cz);
