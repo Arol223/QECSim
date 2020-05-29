@@ -10,6 +10,7 @@ classdef SingleBitGate < handle
         % that aren't operated on even when doing a sequential
         % operation on multiple bits. If 2, only bits that
         % aren't operated on at all are idled.
+        inc_err = 1; %Flag, 1 means errors are included by default. Will use idling if false, but noit gate errors
     end
     
     properties (Dependent)
@@ -131,12 +132,14 @@ classdef SingleBitGate < handle
             op = obj.get_op_el(nbits, target);
             
             rho = (op*nbitstate)*(obj.p_success*op'); %Succesful op
-            for i  = 1:3
-                if obj.error_probs(i+1)
-                    op = obj.get_err(i,target,nbits); %Pauli Errors
-                    % This statement and the similar one above are to avoid
-                    % multiplying and adding all zero matrices.
-                    rho = rho + (obj.error_probs(i+1)*op)*(rho*op');
+            if obj.inc_err
+                for i  = 1:3
+                    if obj.error_probs(i+1)
+                        op = obj.get_err(i,target,nbits); %Pauli Errors
+                        % This statement and the similar one above are to avoid
+                        % multiplying and adding all zero matrices.
+                        rho = rho + (obj.error_probs(i+1)*op)*(rho*op');
+                    end
                 end
             end
             

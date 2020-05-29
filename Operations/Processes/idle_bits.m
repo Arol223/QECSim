@@ -4,10 +4,10 @@ function rho = idle_bits(rho, targets, c_bit, c_phase)
 % exp(-t_dur/2T2) and c_amp = exp(-t_dur/2T1)
 
 
-if c_bit
-    amp = AmplitudeDamping(c_bit);
-    rho = amp.apply(rho, targets);
-end
+% if c_bit
+%     amp = AmplitudeDamping(c_bit); %Uncomment to include amplitude damping
+%     rho = amp.apply(rho, targets);
+% end
 if c_phase
     phase = PhaseDamping(c_phase);
     rho = phase.apply(rho, targets);

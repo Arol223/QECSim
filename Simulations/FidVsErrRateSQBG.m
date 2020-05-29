@@ -18,12 +18,13 @@ for i = 1:length(error_rate)
     fid1(i) = Fid2(psi1,tmprho);
 end
 %%
-loglog(error_rate,fid1)
+figure(1)
+loglog(error_rate,1-fid1)
 title('Fidelity vs Error Rate log log scale')
 xlabel('Error rate')
 ylabel('Fidelity')
-
-
+hold on
+legend('Physical SQBG')
 %% Logical SQBG
 [psi3,rho3] = LogicalZeroSteane();
 psi3 = SteaneLogicalGate(psi3,xgate,1);
@@ -34,7 +35,7 @@ for i = 1:length(error_rate)
     fid3(i) = Fid2(psi3,rtmp);
 end
 %%
-loglog(error_rate,fid3)
+loglog(error_rate,1-fid3)
 
 %% Logical SQBG with EC e_readout=1e-3, e_init=e_gate
 rho4 = rho3;
@@ -232,19 +233,23 @@ parfor i = 1:length(error_rate)
 end
 delete(ppm);
 %% Perfect 2qbg, with idle
-%% No 2qbg errors
 rho12 = rho4;
 psi12 = psi4;
 fid12 = zeros(size(error_rate));
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,2);
+cnot.inc_err = 0; %Don't include gate errors but allow damping
+cz.inc_err = 0; %-||-
+xgate.inc_err = 0;
+zgate.inc_err = 0;
+hadgate.inc_err = 0;
 ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
-parfor i = 1:length(error_rate)
+for i = 1:length(error_rate)
     err = error_rate(i);
     p_succ = 1-err;
     %p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
     p_err2 = 0;
-    cnot.set_err(0,0); % set error rate
-    cz.set_err(0,0);
+    cnot.set_err(err,err); % set error rate
+    cz.set_err(err,err);
     xgate.set_err(err,err);
     zgate.set_err(err,err);
     hadgate.set_err(err,err);
@@ -255,11 +260,13 @@ parfor i = 1:length(error_rate)
     ppm.increment();
 end
 delete(ppm);
+
+
 %% plot
 figure(2)
 loglog(error_rate,1-fid1,'r')
 hold on
-%loglog(error_rate,fid2)
+
 loglog(error_rate,1-fid3,'g')
 loglog(error_rate,1-fid4,'b')
 loglog(error_rate,1-fid5,'y')
@@ -269,13 +276,14 @@ loglog(error_rate,1-fid8,'b-.')
 loglog(error_rate,1-fid9,'y-.')
 loglog(error_rate,1-fid10,'m--')
 loglog(error_rate,1-fid11,'k--')
-% loglog(error_rate,fid10,'r--')
+loglog(error_rate,1-fid12,'c--')
+
 title('Fidelity Vs Error Rate, log log scale')
 xlabel('Error Rate')
 ylabel('Fidelity')
 legend('Physical Single Qubit Gate', ...
-    'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC',...
-    'Logical SQBG, EC, no idling', 'Logical SQBG, EC, no readout error',...
-    'Logical SQBG, EC, no idle or readout', 'Logical SQBG, no idle, readout or init error',...
-    'Logical SQBG w/ EC no two bit errors, no idle', 'Logical SQBG w/only SQBG errors'...
-    ,'Logical SQBG w/ EC single bit errors', 'Logical SQBG w/ EC, perfect 2qbg')
+    'Logical Single Qubit Gate, No EC', 'Logical SQBG w/ EC', 'Logical SQBG w/EC, e_{readout}=e_{gate}',...
+    'Logical SQBG e_{readout}=0','Logical SQBG, no idle or readout errors',...
+    'Logical SQBG, no idle readout or init errors',...
+    'Perfect 2QBG, w/ readout and init error','Only SQBG errors',...
+    'Only 1 bit errors, with idle', 'No gate errors, with idling')
