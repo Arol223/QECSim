@@ -9,6 +9,7 @@ classdef TwoBitGate < handle
         idle_state %0,1 or 2, determines whether to idle bits and how to do it, see SingleBitGate
         T1 % Material/ system param
         T2 % Material/system param.
+        inc_err  = 1; %Wether to include errors or not.
     end
     
     properties (Dependent)
@@ -172,12 +173,14 @@ classdef TwoBitGate < handle
             rho =  (op*nbitstate)*op'; %Succesful op
             res = rho*obj.p_success;
             
-            for i = 1:4
-                for j = 1:4
-                    p = obj.error_probs(i,j);
-                    if p
-                        op = obj.get_err(i,j,[target control],nbits);
-                        res = res + (p*op)*(rho*op');
+            if obj.inc_err
+                for i = 1:4
+                    for j = 1:4
+                        p = obj.error_probs(i,j);
+                        if p
+                            op = obj.get_err(i,j,[target control],nbits);
+                            res = res + (p*op)*(rho*op');
+                        end
                     end
                 end
             end
