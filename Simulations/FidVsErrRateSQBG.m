@@ -21,26 +21,7 @@ loglog(error_rate,fid1)
 title('Fidelity vs Error Rate log log scale')
 xlabel('Error rate')
 ylabel('Fidelity')
-
-%% Physical 2QBG
-rho2 = NbitState();
-rho2.init_all_zeros(2,0)
-psi2 = [1;0;0;0];
-cnot = CNOTGate(0,0);
-cnotmat = kCNOT(1,2,2); %Control bit1, target bit 2, 2bits
-psi2 = cnotmat*psi2;
-fid2 = zeros(size(error_rate));
-for i = 1:length(error_rate)
-    p_succ = 1-error_rate(i);
-    p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
-    p_err = 1 - p_succ;
-    cnot.set_err(p_err,p_err); % set error rate
-    tmprho = cnot.apply(rho2,2,1); % bit 1 is control, bit 2 is target
-    fid2(i) = Fid2(psi2,tmprho);
-end
-%%
 hold on
-loglog(error_rate,fid2)
 
 %% Logical SQBG
 [psi3,rho3] = LogicalZeroSteane();
