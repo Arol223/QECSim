@@ -79,7 +79,12 @@ classdef TwoBitGate < handle
             p_err(1,1) = 0;
             obj.error_probs = p_err;
         end
-        
+        function single_bit_err(obj,p_bit,p_phase)
+           errs = [0 p_bit p_bit*p_phase p_phase];
+           obj.error_probs = zeros(4,4);
+           obj.error_probs(1,:) = errs; %This way there are no cross terms like XxY etc.
+           obj.error_probs(:,1) = errs';
+        end
         function uni_err(obj,p_err)
            %Old and not in use
             p_sing = [p_err p_err^2 p_err]; % Error rate for sqbg
@@ -212,11 +217,11 @@ classdef TwoBitGate < handle
                 rho = obj.apply_single(rho, targets(i), controls(i));
             end
             
-            if (obj.idle_state == 2 && obj.operation_time)
+            if (obj.idle_state == 2)
                 idles = remove_dupes(unique([targets, controls]), 1:nbits);
                 if ~isempty(idles)
-                    c_bit = obj.error_probs(1,2);
-                    c_phase = obj.error_probs(1,4);
+                    c_bit = obj.error_probs(1,2); %Use bitflip error rate as amplitude damping coeff 
+                    c_phase = obj.error_probs(1,4); % Phaseflip as phase damping coeff
                     rho = idle_bits(rho, idles, c_bit,c_phase);
                 end
             end
