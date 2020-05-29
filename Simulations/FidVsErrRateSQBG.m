@@ -2,14 +2,15 @@ T1 = 2e-3;
 T2 = 2e-3;
 
 %% Physical SQBG
-error_rate = linspace(-9,-2,70);
+error_rate = logspace(-9,-1,30);
 had = (1/sqrt(2)).*[1 1;1 -1];
 x = [0 1;1 0];
-error_rate = (10.^error_rate)./2;
-[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,2);
-rho1 = NbitState([1 0;0 0]);
-psi1 = [1;0];
-psi1 = x*psi1;
+
+[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,2);
+rho1 = NbitState();
+rho1.init_all_zeros(2,0);
+psi1 = [1;0;0;0];
+psi1 = xgate.apply(psi1,1);
 fid1 = zeros(size(error_rate));
 for i = 1:length(error_rate)
     xgate.set_err(error_rate(i),error_rate(i)); % Sets a uniform error rate
@@ -22,25 +23,6 @@ title('Fidelity vs Error Rate log log scale')
 xlabel('Error rate')
 ylabel('Fidelity')
 
-%% Physical 2QBG
-rho2 = NbitState();
-rho2.init_all_zeros(2,0)
-psi2 = [1;0;0;0];
-cnot = CNOTGate(0,0);
-cnotmat = kCNOT(1,2,2); %Control bit1, target bit 2, 2bits
-psi2 = cnotmat*psi2;
-fid2 = zeros(size(error_rate));
-for i = 1:length(error_rate)
-    p_succ = 1-error_rate(i);
-    p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
-    p_err = 1 - p_succ;
-    cnot.set_err(p_err,p_err); % set error rate
-    tmprho = cnot.apply(rho2,2,1); % bit 1 is control, bit 2 is target
-    fid2(i) = Fid2(psi2,tmprho);
-end
-%%
-hold on
-loglog(error_rate,fid2)
 
 %% Logical SQBG
 [psi3,rho3] = LogicalZeroSteane();
@@ -58,6 +40,7 @@ loglog(error_rate,fid3)
 rho4 = rho3;
 psi4 = psi3;
 fid4 = zeros(size(error_rate));
+ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
 parfor i = 1:length(error_rate)
     err = error_rate(i);
     p_succ = 1-err;
@@ -72,7 +55,9 @@ parfor i = 1:length(error_rate)
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,1e-3,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,1e-3,hadgate,cnot,xgate,cz);
     fid4(i) = Fid2(psi4,rtmp);
+    ppm.increment();
 end
+delete(ppm)
 %%
 loglog(error_rate,fid4);
 
@@ -80,7 +65,8 @@ loglog(error_rate,fid4);
 rho5 = rho4;
 psi5 = psi4;
 fid5 = zeros(size(error_rate));
-[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,0);
+ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
+[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,2);
 parfor i = 1:length(error_rate)
     err = error_rate(i);
     p_succ = 1-err;
@@ -95,7 +81,9 @@ parfor i = 1:length(error_rate)
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,err,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,err,hadgate,cnot,xgate,cz);
     fid5(i) = Fid2(psi5,rtmp);
+    ppm.increment()
 end
+delete(ppm);
 loglog(error_rate,fid5);
 legend('Physical Single Qubit Gate', 'Physical 2 Qubit Gate',...
     'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC',...
@@ -106,6 +94,7 @@ legend('Physical Single Qubit Gate', 'Physical 2 Qubit Gate',...
 rho6 = rho5;
 psi6 = psi5;
 fid6 = zeros(size(error_rate));
+ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
 parfor i = 1:length(error_rate)
     err = error_rate(i);
     p_succ = 1-err;
@@ -120,7 +109,9 @@ parfor i = 1:length(error_rate)
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,0,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,0,hadgate,cnot,xgate,cz);
     fid6(i) = Fid2(psi6,rtmp);
+    ppm.increment()
 end
+delete(ppm);
 loglog(error_rate,fid6);
 legend('Physical Single Qubit Gate', 'Physical 2 Qubit Gate',...
     'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC',...
@@ -129,6 +120,7 @@ legend('Physical Single Qubit Gate', 'Physical 2 Qubit Gate',...
 rho7 = rho4;
 psi7 = psi4;
 fid7 = zeros(size(error_rate));
+ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,0);
 parfor i = 1:length(error_rate)
     err = error_rate(i);
@@ -144,11 +136,14 @@ parfor i = 1:length(error_rate)
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',0,0,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,0,hadgate,cnot,xgate,cz);
     fid7(i) = Fid2(psi7,rtmp);
+    ppm.increment();
 end
+delete(ppm);
 %% No idle, readout or init
 rho8 = rho4;
 psi8 = psi4;
 fid8 = zeros(size(error_rate));
+ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,0);
 parfor i = 1:length(error_rate)
     err = error_rate(i);
@@ -164,19 +159,22 @@ parfor i = 1:length(error_rate)
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',0,0,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',0,0,hadgate,cnot,xgate,cz);
     fid8(i) = Fid2(psi8,rtmp);
+    ppm.increment();
 end
+delete(ppm);
 %% No 2qbg errors
 rho9 = rho4;
 psi9 = psi4;
 fid9 = zeros(size(error_rate));
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,0);
+ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
 parfor i = 1:length(error_rate)
     err = error_rate(i);
     p_succ = 1-err;
     %p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
     p_err2 = 0;
-    cnot.uni_err(p_err2); % set error rate
-    cz.uni_err(p_err2);
+    cnot.set_err(0,0); % set error rate
+    cz.set_err(0,0);
     xgate.set_err(err,err);
     zgate.set_err(err,err);
     hadgate.set_err(err,err);
@@ -184,19 +182,22 @@ parfor i = 1:length(error_rate)
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,err,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,err,hadgate,cnot,xgate,cz);
     fid9(i) = Fid2(psi9,rtmp);
+    ppm.increment();
 end
+delete(ppm);
 %% Full ec, no 2qbg error, no readout, no init, no idle 
 rho10 = rho4;
 psi10 = psi4;
 fid10 = zeros(size(error_rate));
+ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,0);
 parfor i = 1:length(error_rate)
     err = error_rate(i);
     p_succ = 1-err;
     %p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
     p_err2 = 0;
-    cnot.uni_err(p_err2); % set error rate
-    cz.uni_err(p_err2);
+    cnot.set_err(0,0); % set error rate
+    cz.set_err(0,0);
     xgate.set_err(err,err);
     zgate.set_err(err,err);
     hadgate.set_err(err,err);
@@ -204,20 +205,71 @@ parfor i = 1:length(error_rate)
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',0,0,hadgate,cnot,zgate,cz);
     [rtmp,~] = Correct_steane_error(rtmp,1,'Z',0,0,hadgate,cnot,xgate,cz);
     fid10(i) = Fid2(psi10,rtmp);
+    ppm.increment();
 end
-%%
+delete(ppm);
+%% Only errors affecting 1 bit at a time. Idle bits but assume parallell operations.
+rho11 = rho4;
+psi11 = psi4;
+fid11 = zeros(size(error_rate));
+ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
+[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,2);
+parfor i = 1:length(error_rate)
+    err = error_rate(i);
+    p_succ = 1-err;
+    %p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
+    p_err2 = 0;
+    cnot.single_bit_err(err,err); % set error rate
+    cz.single_bit_err(err,err);
+    xgate.set_err(err,err);
+    zgate.set_err(err,err);
+    hadgate.set_err(err,err);
+    rtmp = SteaneLogicalGate(rho10,xgate,1);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,err,hadgate,cnot,zgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,err,hadgate,cnot,xgate,cz);
+    fid11(i) = Fid2(psi11,rtmp);
+    ppm.increment();
+end
+delete(ppm);
+%% Perfect 2qbg, with idle
+%% No 2qbg errors
+rho12 = rho4;
+psi12 = psi4;
+fid12 = zeros(size(error_rate));
+[cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(T1,T2,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,2);
+ppm = ParforProgressbar(length(error_rate),'showWorkerProgress',true); 
+parfor i = 1:length(error_rate)
+    err = error_rate(i);
+    p_succ = 1-err;
+    %p_succ = p_succ^4; % 2QBG consists of 4 SQBG so this should give appropriate error rate
+    p_err2 = 0;
+    cnot.set_err(0,0); % set error rate
+    cz.set_err(0,0);
+    xgate.set_err(err,err);
+    zgate.set_err(err,err);
+    hadgate.set_err(err,err);
+    rtmp = SteaneLogicalGate(rho9,xgate,1);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'X',err,err,hadgate,cnot,zgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,err,hadgate,cnot,xgate,cz);
+    fid12(i) = Fid2(psi12,rtmp);
+    ppm.increment();
+end
+delete(ppm);
+%% plot
 figure(2)
-loglog(error_rate,fid1,'r')
+loglog(error_rate,1-fid1,'r')
 hold on
 %loglog(error_rate,fid2)
-loglog(error_rate,fid3,'g')
-loglog(error_rate,fid4,'b')
-loglog(error_rate,fid5,'y')
-loglog(error_rate,fid6,'r-.')
-loglog(error_rate,fid7,'g-.');
-loglog(error_rate,fid8,'b-.')
-loglog(error_rate,fid9,'y-.')
-loglog(error_rate,fid10,'r--')
+loglog(error_rate,1-fid3,'g')
+loglog(error_rate,1-fid4,'b')
+loglog(error_rate,1-fid5,'y')
+loglog(error_rate,1-fid6,'r-.')
+loglog(error_rate,1-fid7,'g-.');
+loglog(error_rate,1-fid8,'b-.')
+loglog(error_rate,1-fid9,'y-.')
+loglog(error_rate,1-fid10,'m--')
+loglog(error_rate,1-fid11,'k--')
+% loglog(error_rate,fid10,'r--')
 title('Fidelity Vs Error Rate, log log scale')
 xlabel('Error Rate')
 ylabel('Fidelity')
@@ -225,4 +277,5 @@ legend('Physical Single Qubit Gate', ...
     'Logical Single Qubit Gate, No EC', 'Logical Single Qubit Gate Full EC',...
     'Logical SQBG, EC, no idling', 'Logical SQBG, EC, no readout error',...
     'Logical SQBG, EC, no idle or readout', 'Logical SQBG, no idle, readout or init error',...
-    'Logical SQBG w/ EC no two bit errors', 'Logical SQBG, only SQBG errors')
+    'Logical SQBG w/ EC no two bit errors, no idle', 'Logical SQBG w/only SQBG errors'...
+    ,'Logical SQBG w/ EC single bit errors', 'Logical SQBG w/ EC, perfect 2qbg')
