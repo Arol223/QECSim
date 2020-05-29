@@ -9,7 +9,7 @@ classdef TwoBitGate < handle
         idle_state %0,1 or 2, determines whether to idle bits and how to do it, see SingleBitGate
         T1 % Material/ system param
         T2 % Material/system param.
-        inc_err  = 1; %Wether to include errors or not.
+        inc_err = 1; %Wether to include errors or not, true by default
     end
     
     properties (Dependent)
