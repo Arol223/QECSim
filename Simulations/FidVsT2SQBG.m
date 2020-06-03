@@ -1,7 +1,7 @@
 %% Short T2, T1 for Eu
 T1 = 2e-3;
-T2 = logspace(-5.3979,-4,20);
-e_readout = 1e-3;
+T2 = logspace(log10(4e-6),log10(100e-6),20);
+e_readout = 2e-3;
 t_durs = 400e-9; % SQBG duration
 t_dur_tot = [2*t_durs*[1 1] t_durs*[1 1 1 1]]; % 4 times longer for 2QBG
 [cnot,cz,xg,yg,zg,hg] = MakeGates(T1,Inf,t_dur_tot,0,2);
@@ -20,17 +20,17 @@ for i = 1:length(T2)
     fid_long(1,i) = Fid2(psi1,rtmp);
 end
 
-%% Physical 2QBG
-rho2 = NbitState();
-rho2.init_all_zeros(2,0); %Starting state all zero
-psi2 = [1;0;0;0]; 
-psi2 = cnot.apply(psi2,2,1); %Reference state without errors
-for i = 1:length(T2)
-    cnot.T2 = T2(i);
-    cnot.err_from_T();
-    rtmp = cnot.apply(rho2,2,1);
-    fid_long(2,i) = Fid2(psi2,rtmp);
-end
+% %% Physical 2QBG
+% rho2 = NbitState();
+% rho2.init_all_zeros(2,0); %Starting state all zero
+% psi2 = [1;0;0;0]; 
+% psi2 = cnot.apply(psi2,2,1); %Reference state without errors
+% for i = 1:length(T2)
+%     cnot.T2 = T2(i);
+%     cnot.err_from_T();
+%     rtmp = cnot.apply(rho2,2,1);
+%     fid_long(2,i) = Fid2(psi2,rtmp);
+% end
 
 %% Logical SQBG
 [psi3,rho3] = LogicalZeroSteane();
@@ -99,10 +99,16 @@ end
 
 %% Plotting
 figure(1)
-loglog(T2,fid_long)
-xlabel('log(T2)')
-ylabel('Fidelity')
+loglog(T2,1-fid_long(1,:),'r')
+hold on
+loglog(T2,1-fid_long(3,:),'g')
+loglog(T2,1-fid_long(4,:),'b')
+loglog(T2,1-fid_long(5,:),'r--')
+loglog(T2,1-fid_long(6,:),'g--')
+loglog(T2,1-fid_long(7,:),'b--')
+xlabel('T2')
+ylabel('1-Fidelity')
 title('Fidelity as a function of T2 for different scenarios')
-legend('Physical SQBG','Physical 2QBG', 'Logical SQBG','Logical SQBG w/ EC',...
-    'Logical SQBG w/ EC, no idle', 'Logical SQBG w/ EC low readout err',...
-    'Logical SQBG w/ EC, low readout err, no idle')
+legend('Physical SQBG', 'Logical SQBG','Logical SQBG w/ EC',...
+    'Logical SQBG w/ EC, no idle', 'Logical SQBG w/ EC, e_{readout} = e_{gate}',...
+    'Logical SQBG w/ EC, e_{readout}=e_gate, no idle')
