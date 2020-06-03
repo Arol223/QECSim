@@ -6,9 +6,15 @@ function rho = prep_cat_state( nbits, e_state_prep, e_readout, CNotGate,...
 %   measurements, faulty state preparation and gate errors.
 %   Follows circuit from: https://arxiv.org/pdf/0905.2794.pdf?source=post_page---------------------------
 %   Fig 16 p.29.
-
-
 rho = NbitState();
+% % Ths block is used to create perfect ancilla. Remove for using gate errors
+% CNotGate.inc_err = 0;
+% CNotGate.idle_state = 0;
+% HadGate.inc_err = 0;
+% HadGate.idle_state = 0;
+% e_state_prep = 0;
+% e_readout = 0;
+
 rho.init_all_zeros(nbits+1, e_state_prep); %Initialise in |0000....0>
 controls = [2,2,3:nbits, nbits+1];  %Control bits for Cnot
 targets = [1,3,4:nbits+1, 1];   % Target bits for CNOt
