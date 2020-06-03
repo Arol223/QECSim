@@ -105,7 +105,7 @@ classdef SingleBitGate < handle
             op = kron(op,right);
         end
         
-        function rho = apply_single(obj, nbitstate, target)
+        function res = apply_single(obj, nbitstate, target)
             % Applies the gate with errors to target bit. Gate applied
             % first, then each type of error. If nbitstate is a vector gate
             % is applied without errors.
@@ -118,27 +118,29 @@ classdef SingleBitGate < handle
                 %Handles case when nbitstate is a bra
                 nbits = log2(length(nbitstate));
                 op = obj.get_op_el(nbits,target);
-                rho = nbitstate*op';
+                res = nbitstate*op';
                 return
             elseif size(nbitstate,2) == 1
-                % handles case when nbitstate is a bra
+                % handles case when nbitstate is a ket
                 nbits = log2(length(nbitstate));
                 op = obj.get_op_el(nbits,target);
-                rho = op*nbitstate;
+                res = op*nbitstate;
                 return
             else
                 nbits = log2(size(nbitstate,1));
             end
             op = obj.get_op_el(nbits, target);
             
-            rho = (op*nbitstate)*(obj.p_success*op'); %Succesful op
+            rho = (op*nbitstate)*op'; %Succesful op
+            res = rho;
             if obj.inc_err
+                res = res*obj.p_success;
                 for i  = 1:3
                     if obj.error_probs(i+1)
                         op = obj.get_err(i,target,nbits); %Pauli Errors
                         % This statement and the similar one above are to avoid
                         % multiplying and adding all zero matrices.
-                        rho = rho + (obj.error_probs(i+1)*op)*(rho*op');
+                        res = res + (obj.error_probs(i+1)*op)*(rho*op');
                     end
                 end
             end
@@ -148,11 +150,11 @@ classdef SingleBitGate < handle
                 c_bit = obj.error_probs(2); %Coeff for bitflip, used for amp damping
                 c_phase = obj.error_probs(4); %Coeff for phaseflip, used for phase damping
                 idles = [1:target-1, target+1:nbits];
-                rho = idle_bits(rho, idles,c_bit, c_phase);
+                res = idle_bits(res, idles,c_bit, c_phase);
             end
             
             if return_state
-                rho = NbitState(rho);
+                res = NbitState(res);
             end
         end
         
@@ -188,14 +190,14 @@ classdef SingleBitGate < handle
                 end
             end
             % Following 2 lines remove elements <tol
-            if obj.tol
-                rho=rho.*(abs(rho)>obj.tol);
-                tr = trace(rho);
-                
-                if tr
-                    rho = rho./tr;
-                end
-            end
+%             if obj.tol
+%                 rho=rho.*(abs(rho)>obj.tol);
+%                 tr = trace(rho);
+%                 
+%                 if tr
+%                     rho = rho./tr;
+%                 end
+%             end
             if return_state
                 rho = NbitState(rho);
             end

@@ -5,7 +5,7 @@ classdef TwoBitGate < handle
     properties
         error_probs; %4x4 matrix containing error_probs for target and control bits. Index corresponds to pauli sigma matrix.
         operation_time
-        tol % Tolerance of gate. Returned state will not have elements < tol
+        tol % relative tolerance of gate. Errors probabilities smaller than this will not be used.
         idle_state %0,1 or 2, determines whether to idle bits and how to do it, see SingleBitGate
         T1 % Material/ system param
         T2 % Material/system param.
@@ -171,13 +171,14 @@ classdef TwoBitGate < handle
             op = obj.get_op_el(nbits, target, control);
             
             rho =  (op*nbitstate)*op'; %Succesful op
-            res = rho*obj.p_success;
+            res = rho;
             
             if obj.inc_err
+                res = res*obj.p_success;
                 for i = 1:4
                     for j = 1:4
                         p = obj.error_probs(i,j);
-                        if p
+                        if p >=obj.tol
                             op = obj.get_err(i,j,[target control],nbits);
                             res = res + (p*op)*(rho*op');
                         end
