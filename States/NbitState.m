@@ -158,7 +158,10 @@ classdef NbitState < handle
             res = nnz(obj.rho);
         end
         function normalise(obj)
-            obj.rho = obj.rho./trace(obj.rho);
+            tr = trace(obj.rho);
+            if tr %prevent division by zero
+                obj.rho = obj.rho./trace(obj.rho);
+            end
         end
     end
     
