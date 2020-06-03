@@ -10,7 +10,7 @@ function [ rho, p_rho ] = measure_css_gen(nbitstate, block, CSSCode, type, gen_n
 if (nargin < 11 && strcmp(type,'Z')) 
     error('Provide a CZ-gate to measure a Z-type generator')
 end
-
+prep_cat_state = memoize(@prep_cat_state);
 ancilla_sz = CSSCode.get_stabweight(type, gen_nbr); % Ancilla size, determined by stabiliser weight.
 ancilla = prep_cat_state(ancilla_sz, e_init, e_readout, CNot, had_gate); % prepare ancilla in cat state
 rho = ancilla*nbitstate;    % Tensor product of data block and ancilla
