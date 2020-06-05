@@ -72,7 +72,7 @@ classdef DampingChannel < handle
             res = op*res*op';
             for i =2:size(obj.operation_elements,3)
                op = obj.nbit_op_element(i, target, tot_bits);
-               res = res + op*res*op';
+               res = res + op*nstate*op';
             end
             if return_state
                 res = NbitState(res);
