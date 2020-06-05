@@ -78,6 +78,7 @@ classdef TwoBitGate < handle
                 end
             end
             p_err(1,1) = 0;
+            p_err = p_err.*(p_err>obj.tol);
             obj.error_probs = p_err;
         end
         function single_bit_err(obj,p_bit,p_phase)
@@ -85,6 +86,7 @@ classdef TwoBitGate < handle
            obj.error_probs = zeros(4,4);
            obj.error_probs(1,:) = errs; %This way there are no cross terms like XxY etc.
            obj.error_probs(:,1) = errs';
+          obj.error_probs = obj.error_probs.*(obj.error_probs>obj.tol);
         end
         function uni_err(obj,p_err)
            %Old and not in use
@@ -103,6 +105,7 @@ classdef TwoBitGate < handle
             p = p./sum(p(:));
             p = p.*(p_err);
             obj.error_probs = p;
+            obj.error_probs = obj.error_probs.*(obj.error_probs>obj.tol);
         end
         
         function err_from_T(obj)
@@ -173,15 +176,15 @@ classdef TwoBitGate < handle
             rho =  (op*nbitstate)*op'; %Succesful op
             res = rho;
             
-            if obj.inc_err
+            if obj.inc_err % Applying errors with probabilities in error_probs
                 res = res*obj.p_success;
                 for i = 1:4
                     for j = 1:4
                         p = obj.error_probs(i,j);
-                        if p >=obj.tol
+                        
                             op = obj.get_err(i,j,[target control],nbits);
                             res = res + (p*op)*(rho*op');
-                        end
+                        
                     end
                 end
             end
