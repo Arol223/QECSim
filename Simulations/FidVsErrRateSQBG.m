@@ -135,7 +135,7 @@ parfor i = 1:length(error_rate)
     hadgate.set_err(err,err);
     rtmp = SteaneLogicalGate(rho7,xgate,1);
     [rtmp,~] = Correct_steane_error(rtmp,1,'X',0,0,hadgate,cnot,zgate,cz);
-    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',err,0,hadgate,cnot,xgate,cz);
+    [rtmp,~] = Correct_steane_error(rtmp,1,'Z',0,0,hadgate,cnot,xgate,cz);
     fid7(i) = Fid2(psi7,rtmp);
     ppm.increment();
 end
