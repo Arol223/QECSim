@@ -1,7 +1,7 @@
 [cnot,cz,xgate,~,zgate,hadgate] = MakeGates(0,0,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,2);
 
 p_err = logspace(-9,-3,17);
-ngates = 1e4;
+ngates = 160;
 %% Physical gate
 rho_p = NbitState([1 0;0 0]); %p for physical
 psi_p = [1; 0]; %p for physical
