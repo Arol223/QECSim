@@ -1,17 +1,21 @@
 clear variables
 %% With all errors, no tol.
 [~,~,xgate,ygate,zgate,hadgate] = MakeGates(150e-6,150e-6,2e-6*ones(6,1),0,1);
-X = 5e2; %Max # gates to test
+xgate.set_err(1e-3,1e-3);
+ygate.set_err(1e-3,1e-3);
+zgate.set_err(1e-3,1e-3);
+hadgate.set_err(1e-3,1e-3);
+X = 1e2; %Max # gates to test
 sample_sz = 100; % Number of samples to try;
 rng('shuffle');
-r = LogicalZeroSteane();
+[~,r] = LogicalZeroSteane();
 runtime_meanerr = zeros(1,X);
 SEMerr = zeros(1,X);
 for i = 1:X
     gates = randi(4,1,X);
-    times = zeros(1,100);
+    times = zeros(1,sample_sz);
     
-    for j = 1:100
+    for j = 1:sample_sz
         rho=r;
         time = zeros(1,i);
         for k = 1:i
@@ -60,13 +64,13 @@ xgate.inc_err=0;
 ygate.inc_err=0;
 zgate.inc_err=0;
 hadgate.inc_err=0;
-X = 5e2;
+X = 1e2;
 runtime_mean = zeros(1,X);
 SEM = runtime_mean;
 for i = 1:X % Get time for 1-X gates 
     gates = randi(4,1,X);
-    times = zeros(1,100);
-    for j = 1:100 % Sample size of 100
+    times = zeros(1,sample_sz);
+    for j = 1:sample_sz % Sample size of 100
         time = zeros(1,i);
         rho = r;
         for k = 1:i % apply i gates
@@ -115,6 +119,7 @@ figure(3)
 title('Mean Runtime & Standard Error of The Mean Vs Number of Gates, With & Without Errors')
 hold on
 yyaxis left
+ylabel('Time [s]')
 plot(1:X,runtime_meanerr,'r')
 plot(1:X,runtime_mean,'b')
 yyaxis right
@@ -123,3 +128,4 @@ plot(1:X,SEM,'b-.')
 legend('Runtime with Errors','Runtime without errors','SEM with errors', 'SEM without errors')
 xlabel('Number of single qubit gates')
 ylabel('Time [s]')
+legend('Runtime with errors', 'Runtime without errors', 'SEM with errors', 'SEM without errors')
