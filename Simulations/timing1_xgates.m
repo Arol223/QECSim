@@ -12,7 +12,7 @@ rng('shuffle');
 runtime_meanerr = zeros(1,X);
 SEMerr = zeros(1,X);
 for i = 1:X
-    gates = randi(4,1,X);
+    gates = randi(3,1,X);
     times = zeros(1,sample_sz);
     
     for j = 1:sample_sz
@@ -68,7 +68,7 @@ X = 1e2;
 runtime_mean = zeros(1,X);
 SEM = runtime_mean;
 for i = 1:X % Get time for 1-X gates 
-    gates = randi(4,1,X);
+    gates = randi(3,1,X);
     times = zeros(1,sample_sz);
     for j = 1:sample_sz % Sample size of 100
         time = zeros(1,i);
