@@ -4,6 +4,6 @@ function [varargout] = SetErrRate(p_err,varargin)
 %   Detailed explanation goes here
 for i = 1:nargin-1
     varargout{i} = varargin{i};
-    varargout{i}.rand_error(p_err);
+    varargout{i}.set_err(p_err,p_err);
 end
 
