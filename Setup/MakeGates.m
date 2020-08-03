@@ -11,7 +11,7 @@ function [cnot, cz, xgate, ygate,zgate, hadgate] = MakeGates(T1, T2, t_dur,...
 if size(t_dur,1) == 1
     t_dur = t_dur.';
 end
-tol = 1e-16;
+tol = 0;
 cnot = CNOTGate(tol,t_dur(1),T1,T2, idle_state);
 cz = CZGate(tol,t_dur(2),T1,T2,idle_state);
 xgate = XGate(tol,t_dur(3),T1,T2,idle_state);
