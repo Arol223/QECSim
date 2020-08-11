@@ -9,8 +9,7 @@ tot_time_sparse = zeros(1,length(width));
 tot_time_full = tot_time_sparse;
 SEM_sparse = zeros(1,length(width));
 SEM_full = SEM_sparse;
-times_sparse = zeros(1,reps);
-times_full = times_sparse;
+
 for i = 1:length(width)
     w = width(i);
    rho1 = rand(2^w);
@@ -20,6 +19,8 @@ for i = 1:length(width)
    else
        reps = 5;
    end
+   times_sparse = zeros(1,reps);
+    times_full = times_sparse;
    for r = 1:reps
        tic;
        xgate.apply(rho1,1);
