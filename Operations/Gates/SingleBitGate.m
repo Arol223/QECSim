@@ -189,15 +189,20 @@ classdef SingleBitGate < handle
                     rho = idle_bits(rho, idles, c_bit,c_phase);
                 end
             end
-            % Following 2 lines remove elements <tol
-%             if obj.tol
-%                 rho=rho.*(abs(rho)>obj.tol);
-%                 tr = trace(rho);
-%                 
-%                 if tr
-%                     rho = rho./tr;
-%                 end
-%             end
+            Following 2 lines remove elements <tol
+            if obj.tol
+                rho=rho.*(abs(rho)>obj.tol);
+                tr = trace(rho);
+                
+                if tr
+                    rho = rho./tr;
+                else
+                    warning('Trace(rho) = 0, check that tolerance is small enough')
+                end
+            end
+            if nnz(rho) > (size(rho,1)^2)/2
+                rho = full(rho);
+            end
             if return_state
                 rho = NbitState(rho);
             end
