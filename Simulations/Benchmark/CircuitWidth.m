@@ -1,6 +1,6 @@
 %% Test runtime as function of circuit width
 width = 1:14;
-p_err = 1e-8;
+p_err = 0;
 reps = 5;
 [cnot, cz, xgate, ygate, zgate, hadgate] = MakeGates(Inf,Inf,zeros(6,1),0,0); %Gates without errors
 [cnot,cz,xgate,ygate,zgate,hadgate] = SetErrRate(p_err,cnot,cz,xgate,ygate,zgate,hadgate);
@@ -26,5 +26,5 @@ for i = 1:length(width)
    tot_time_sparse(i) = mean(times_sparse);
    SEM_sparse(i) = std(times_sparse)/reps;
    tot_time_full(i) = mean(times_full);
-   SEM_full = std(times_full)/reps;
+   SEM_full(i) = std(times_full)/reps;
 end
