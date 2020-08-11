@@ -15,6 +15,11 @@ for i = 1:length(width)
     w = width(i);
    rho1 = rand(2^w);
    rho2 = rand(2^w);
+   if w<8
+       reps = 25;
+   else
+       reps = 5;
+   end
    for r = 1:reps
        tic;
        xgate.apply(rho1,1);
