@@ -17,9 +17,9 @@ for i = 1:length(width)
    rho1.init_all_zeros(w,1e-4)
    rho2 = rand(2^w);
    if w<8
-       reps = 25;
+       reps = 100;
    else
-       reps = 5;
+       reps = 25;
    end
    times_sparse = zeros(1,reps);
     times_full = times_sparse;
