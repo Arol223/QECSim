@@ -19,7 +19,7 @@ for i = 1:length(width)
    if w<8
        reps = 100;
    else
-       reps = 25;
+       reps =100;
    end
    times_sparse = zeros(1,reps);
     times_full = times_sparse;
