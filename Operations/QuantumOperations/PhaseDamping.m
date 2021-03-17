@@ -1,14 +1,18 @@
 %Describes PhaseDamping
 classdef PhaseDamping < DampingChannel
-   
+    
     properties(Dependent)
         operation_elements
     end
     
     methods
-       
+        
         function obj = PhaseDamping(DampingCoeff)
-           obj@DampingChannel(DampingCoeff) 
+            obj@DampingChannel(DampingCoeff)
+        end
+        
+        function el = nbit_op_element(obj, element_number, target, tot_bits)
+            el = obj.DampEl('P',element_number, target, tot_bits, obj.DampingCoeff);
         end
         
         function val = get.operation_elements(obj)

@@ -1,4 +1,4 @@
-function [ rho ] = ancilla_extract_prep( rho, CNot, Had, ancilla_sz, idle)
+function [ rho ] = ancilla_extract_prep( nbitstate, CNot, Had, ancilla_sz, idle)
 %ANCILLA_EXTRACTION Prepares the ancilla part of system for measurement.
 %   Applies a transversal CNOT from bottom to top, followed by a hadamard
 %   gate on the top bit to prepare the state for e.g. syndrome extraction.
@@ -21,7 +21,8 @@ if ~idle
 end
 controls = ancilla_sz-1:-1:1;
 targets = ancilla_sz:-1:2;
-rho = CNot.apply(rho, targets, controls);
+rho = CNot.apply(nbitstate, targets, controls);
+rho.copy_params(nbitstate);
 rho = Had.apply(rho,1);
 end
 

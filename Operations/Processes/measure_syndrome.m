@@ -20,6 +20,7 @@ function [ rho_tot, p_tot ] = measure_syndrome(nbitstate,block,CSSCode,...
 %   had, cnot, cz - the gates required for the operations. 
 n = 2^nbitstate.nbits;
 rho_tot = NbitState(spalloc(n,n,(n^2)/2));
+rho_tot.copy_params(nbitstate);
 p_tot = 0;
 
 if nargin < 10
@@ -65,5 +66,6 @@ for i = 1:3
 end
 
 normalise(rho_tot)
+
 end
 

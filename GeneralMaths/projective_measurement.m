@@ -30,7 +30,7 @@ elseif s2 == 0
     proj = kron(speye(2^s1),proj);
    
 else
-    proj = tensor_product({eye(2^s1),proj,eye(2^s2)});
+    proj = tensor_product({speye(2^s1),proj,speye(2^s2)});
     
 end
 
@@ -43,6 +43,7 @@ end
 
 if output_state
     rho = NbitState(rho);
+    rho.copy_params(nbitstate)
 end
 
 end

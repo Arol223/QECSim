@@ -11,6 +11,10 @@ classdef AmplitudeDamping < DampingChannel
            obj@DampingChannel(DampingCoeff) 
         end
         
+        function el = nbit_op_element(obj, element_number, target, tot_bits)
+            el = obj.DampEl('A',element_number, target, tot_bits, obj.DampingCoeff);
+        end
+        
         function val = get.operation_elements(obj)
             % Operation elements as defined in Nielsen and Chuang ch. 8
             gamma = obj.DampingCoeff;

@@ -3,7 +3,14 @@
 classdef NbitState < handle
     
     properties
-        rho; %Density matrix
+        rho;    %Density matrix
+        T_1_opt;    % Optical T1
+        T_2_opt;    % Optical T2    
+        T_2_hf;     % Hyperfine T2
+        t_ro;       % Readout time
+        t_init;     % Initialisation time
+        e_init;     % Initialisation error
+        e_ro;       % Readout error
     end
     
     properties (Dependent = true)
@@ -16,7 +23,53 @@ classdef NbitState < handle
         function obj = NbitState(rho)
             if nargin == 1
                 obj.rho = rho;
+                obj.normalise();
             end
+            obj.T_1_opt = 0;
+            obj.T_2_opt = 0;
+            obj.T_2_hf = 0;
+            obj.t_ro = 0;
+            obj.t_init = 0;
+            obj.e_init = 0;
+            obj.e_ro = 0;
+        end
+        
+        function copy_params(obj, oth)
+           obj.T_1_opt = oth.T_1_opt;
+           obj.T_2_opt = oth.T_2_opt;
+           obj.T_2_hf = oth.T_2_hf;
+           obj.t_ro = oth.t_ro;
+           obj.t_init = oth.t_init;
+           obj.e_init = oth.e_init;
+           obj.e_ro = oth.e_ro;
+        end
+        
+        function set_T1(obj, T1)
+            obj.T_1_opt = T1;
+        end
+        
+        function set_T2_opt(obj,T2)
+            obj.T_2_opt = T2;
+        end
+        
+        function set_T2_hf(obj, T2)
+            obj.T_2_hf = T2;
+        end
+        
+        function set_t_ro(obj, t_ro)
+            obj.t_ro = t_ro;
+        end
+        
+        function set_e_ro(obj,e_ro)
+           obj.e_ro = e_ro; 
+        end
+        
+        function set_e_init(obj,e_init)
+            obj.e_init = e_init;
+        end
+        
+        function set_t_init(obj, t_init)
+            obj.t_init = t_init;
         end
         
         function val = get.nbits(obj)
@@ -28,36 +81,41 @@ classdef NbitState < handle
         end
         % Enables adding NbitStates as s = a+b where a & b are NbitStates
         function x = plus(obj,oth)
+            tmp = zeros(size(obj.rho));
             if isa(oth, 'NbitState')
-                x = obj.rho + oth.rho;
+                tmp = zeros(size(obj.rho));
+                tmp = tmp + obj.rho + oth.rho;
            
             elseif (ismatrix(oth) && (isequal(size(oth), size(obj.rho))))
-                x = obj.rho + oth;
+                tmp = tmp + obj.rho + oth;
     
             else
                 error('Both operands must be NbitStates or matrices of right dimension')
             end
-            if nnz(x) < (size(x,1)^2)/2
-                x = sparse(x);
+            if nnz(tmp) < (size(tmp,1)^2)/2
+                tmp = sparse(tmp);
             end
-            x = NbitState(x);
+            
+            x = obj;
+            x.rho = tmp;
+            
         end
         
         % Overloads * to become the tensor product of two NbitStates
-        function tp = mtimes(obj, oth)
-            if isa(oth, 'NbitState')
-                mat = tensor_product({obj.rho,oth.rho});
-                tp = NbitState();
-                tp.initialise(mat);
-            elseif ismatrix(oth)
-                mat = tensor_product({obj.rho,oth});
-                tp = NbitState();
-                tp.initialise(mat);
-            else
-                error('Both operands must be NbitStates or matrices of right dimension')
-            end
-            
-        end
+%         function tp = mtimes(obj, oth)
+%             if isa(oth, 'NbitState')
+%                 mat = tensor_product({obj.rho,oth.rho});
+%                 tp = NbitState();
+%                 tp.initialise(mat);
+%             elseif ismatrix(oth)
+%                 mat = tensor_product({obj.rho,oth});
+%                 tp = NbitState();
+%                 tp.initialise(mat);
+%             else
+%                 error('Both operands must be NbitStates or matrices of right dimension')
+%             end
+%             
+%         end
         
         
         function initialise(obj, rho)
@@ -65,8 +123,8 @@ classdef NbitState < handle
             obj.rho = rho;
         end
         
-        function [m,n] = size(obj)
-           [m,n] = size(obj.rho); 
+        function n = size(obj,varargin)
+           n = size(obj.rho,1); 
         end
         
         function init_all_zeros(obj, nbits, init_error)

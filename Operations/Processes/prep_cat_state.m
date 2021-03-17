@@ -1,5 +1,5 @@
-function rho = prep_cat_state( nbits, e_state_prep, e_readout, CNotGate,...
-    HadGate)
+function [rho, t_tot] = prep_cat_state( nbits, e_state_prep, e_readout, CNotGate,...
+    HadGate, t_ro, t_init)
 %PREP_CAT_STATE Prepares an NBitState in a cat state.
 %   Prepares a cat state that can be used as an ancilla state to measure
 %   generators of stabiliser codes etc. Accounts for readout errors in
@@ -22,5 +22,13 @@ rho = HadGate.apply(rho, 2);    % H-gate on bit 1
 rho = CNotGate.apply(rho, targets, controls);   %CNot
 rho = measurement_e(rho, 1, 0, e_readout, 'NbitState'); % Verification measurement
 rho.trace_out_bits(1);  % Removing first bit. 
+
+t_dur_cnot = CNotGate.operation_time;   % Operation time for cnot
+t_dur_had = HadGate.operation_time; % Operation time for hadamard    
+                                    % Readout time t_ro from input
+n_cnot = length(controls); % # of cnot-gates
+
+t_tot = t_dur_cnot*n_cnot + t_dur_had + t_ro +(nbits+1)*t_init;
+
 end
 

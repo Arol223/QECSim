@@ -1,4 +1,4 @@
-function  [rho_tot,p]  = Correct_steane_error( nbitstate,block...
+function  [rho_n,p]  = Correct_steane_error( nbitstate,block...
     ,type,e_init,e_readout,had_gate,CNot,corr_gate,CZ )
 %CORRECT_STEANE_ERROR Run a bit or phase flip EC cycle using the steane
 %code
@@ -38,12 +38,14 @@ for i = 1:8
 %    figure(i)
 %    spy(r_tmp)
 end
-rho_tot = NbitState(zeros(size(nbitstate)));
+rho_n = zeros(size(nbitstate));
 
 for i = 1:8
-rho_tot = rho_tot + p(i).*rho(i);
-
+rho_n = rho_n + p(i).*rho(i).rho;
 end
+rho_n = sparse(rho_n);
+rho_n = NbitState(rho_n);
+rho_n.copy_params(nbitstate)
 % figure(9)
 % spy(rho_tot)
 end

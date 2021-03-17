@@ -4,6 +4,7 @@ classdef TwoBitGate < handle
     
     properties
         error_probs; %4x4 matrix containing error_probs for target and control bits. Index corresponds to pauli sigma matrix.
+        damp_coeff
         operation_time
         tol % relative tolerance of gate. Errors probabilities smaller than this will not be used.
         idle_state %0,1 or 2, determines whether to idle bits and how to do it, see SingleBitGate
@@ -45,6 +46,11 @@ classdef TwoBitGate < handle
         
         function p = get.p_success(obj)
             p = 1 - sum(obj.error_probs(:));
+        end
+        
+        function set_damp_coeff(obj, c_phase, c_amp)
+           obj.damp_coeff(1)=c_phase;
+           obj.damp_coeff(2) = c_amp;
         end
         
         function set_err(obj, p_bit,p_phase)
@@ -150,30 +156,34 @@ classdef TwoBitGate < handle
             res = kron(res,right);
         end
         
-        function res = apply_single(obj, nbitstate,target, control)
+        function rho = apply_single(obj, nbitstate,target, control)
             return_state = 0;
             if isa(nbitstate,'NbitState')
                 nbits = nbitstate.nbits;
-                nbitstate = nbitstate.rho;
+                rho = nbitstate.rho;
                 return_state = 1;
             elseif size(nbitstate,1) == 1
                 % Handles the case when rho is a bra
                 nbits = log2(length(nbitstate));
                 op = obj.get_op_el(nbits,target,control);
                 res = nbitstate*op';
+                rho = res;
                 return
             elseif size(nbitstate,2) == 1
                 % Handles case when rho is a ket
                 nbits = log2(length(nbitstate));
                 op = obj.get_op_el(nbits,target,control);
                 res = op*nbitstate;
+                rho = res;
                 return
             else
+                % if nbitstate is a matrix
                 nbits = log2(size(nbitstate,1));
+                rho = nbitstate;
             end
             op = obj.get_op_el(nbits, target, control);
             
-            rho =  (op*nbitstate)*op'; %Succesful op
+            rho =  (op*rho)*op'; %Succesful op
             res = rho;
             
             if obj.inc_err % Applying errors with probabilities in error_probs
@@ -191,14 +201,17 @@ classdef TwoBitGate < handle
             
             if (obj.idle_state == 1)
                 % Idles all bits even for sequential operations.
-                c_bit = obj.error_probs(1,2);
-                c_phase = obj.error_probs(1,4);
+                c_bit = obj.damp_coeff(2);
+                c_phase = obj.damp_coeff(1);
                 idles = [1:target-1, target+1:nbits];
                 res = idle_bits(res, idles, c_bit,c_phase);
             end
             
             if return_state
-                res = NbitState(res);
+                rho = NbitState(res);
+                rho.copy_params(nbitstate);
+            else
+               rho = res;
             end
         end
         function rho = apply(obj, nbitstate, targets,controls)
@@ -207,7 +220,7 @@ classdef TwoBitGate < handle
             return_state = 0;
             if isa(nbitstate, 'NbitState')
                 nbits = nbitstate.nbits;
-                nbitstate = nbitstate.rho;
+                rho = nbitstate.rho;
                 return_state = 1;
             elseif size(nbitstate,1) == 1 || size(nbitstate,2) == 1 % State vector
                 %Handles the case when nbitstate is a state vector
@@ -219,7 +232,7 @@ classdef TwoBitGate < handle
             else
                 nbits = log2(size(nbitstate,1));
             end
-            rho = obj.apply_single(nbitstate, targets(1), controls(1));
+            rho = obj.apply_single(rho, targets(1), controls(1));
             for i = 2:length(targets)
                 rho = obj.apply_single(rho, targets(i), controls(i));
             end
@@ -227,8 +240,8 @@ classdef TwoBitGate < handle
             if (obj.idle_state == 2)
                 idles = remove_dupes(unique([targets, controls]), 1:nbits);
                 if ~isempty(idles)
-                    c_bit = obj.error_probs(1,2); %Use bitflip error rate as amplitude damping coeff 
-                    c_phase = obj.error_probs(1,4); % Phaseflip as phase damping coeff
+                    c_bit = obj.damp_coeff(2); %Use bitflip error rate as amplitude damping coeff 
+                    c_phase = obj.damp_coeff(1); % Phaseflip as phase damping coeff
                     rho = idle_bits(rho, idles, c_bit,c_phase);
                 end
             end
@@ -241,11 +254,14 @@ classdef TwoBitGate < handle
                     rho = rho./tr;
                 end
             end
-            if nnz(rho) > (size(rho,1)^2)/2
+            if (nnz(rho) > (size(rho,1)^2)/2 && issparse(rho))
                 rho = full(rho);
+            elseif ~issparse(rho)
+                rho = sparse(rho);
             end
             if return_state
                 rho = NbitState(rho);
+                rho.copy_params(nbitstate)
             end
         end
         

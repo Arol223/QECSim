@@ -2,6 +2,7 @@ classdef SingleBitGate < handle
     %SINGLEBITGATE Base class for single qubit gates.
     properties
         error_probs % 1x4 vector containing probs for I, X, Y and Z errors in that order.
+        damp_coeff % Coefficients for phase and amplitude damping
         operation_time
         tol % Tolerance of the gate. Returned state will not have elements<tol.
         T1 % Material/system parameter
@@ -10,7 +11,7 @@ classdef SingleBitGate < handle
         % that aren't operated on even when doing a sequential
         % operation on multiple bits. If 2, only bits that
         % aren't operated on at all are idled.
-        inc_err = 1; %Flag, 1 means errors are included by default. Will use idling if false, but noit gate errors
+        inc_err = 1; %Flag, 1 means errors are included by default. Will use idling if false, but not gate errors
     end
     
     properties (Dependent)
@@ -42,8 +43,9 @@ classdef SingleBitGate < handle
             end
             
             obj.operation_time = operation_time;
+            obj.err_from_T()
             obj.tol = tol;
-            obj.err_from_T();
+            
         end
         
         function res = get.p_success(obj)
@@ -53,6 +55,11 @@ classdef SingleBitGate < handle
         function set_err(obj,p_bit,p_phase)
             obj.error_probs = [0,p_bit,p_bit*p_phase,p_phase];
         end
+        
+        function set_damp_coeff(obj, c_phase, c_amp)
+            obj.damp_coeff = [c_phase, c_amp];
+        end
+        
         function uni_err(obj,p_err)
             % Set the errors so that the total error rate is p_err
            p = [0, p_err,p_err^2,p_err];
@@ -105,33 +112,36 @@ classdef SingleBitGate < handle
             op = kron(op,right);
         end
         
-        function res = apply_single(obj, nbitstate, target)
+        function rho = apply_single(obj, nbitstate, target)
             % Applies the gate with errors to target bit. Gate applied
             % first, then each type of error. If nbitstate is a vector gate
             % is applied without errors.
             return_state = 0;
             if isa(nbitstate,'NbitState')
                 nbits = nbitstate.nbits;
-                nbitstate = nbitstate.rho;
+                rho = nbitstate.rho;
                 return_state = 1;
             elseif size(nbitstate,1) == 1
                 %Handles case when nbitstate is a bra
                 nbits = log2(length(nbitstate));
                 op = obj.get_op_el(nbits,target);
                 res = nbitstate*op';
+                rho = res;
                 return
             elseif size(nbitstate,2) == 1
                 % handles case when nbitstate is a ket
                 nbits = log2(length(nbitstate));
                 op = obj.get_op_el(nbits,target);
                 res = op*nbitstate;
+                rho = res;
                 return
             else
                 nbits = log2(size(nbitstate,1));
+                rho = nbitstate;
             end
             op = obj.get_op_el(nbits, target);
             
-            rho = (op*nbitstate)*op'; %Succesful op
+            rho = (op*rho)*op'; %Succesful op
             res = rho;
             if obj.inc_err
                 res = res*obj.p_success;
@@ -147,14 +157,19 @@ classdef SingleBitGate < handle
             
             if (obj.idle_state == 1)
                 % Idles all bits even for sequential operations.
-                c_bit = obj.error_probs(2); %Coeff for bitflip, used for amp damping
-                c_phase = obj.error_probs(4); %Coeff for phaseflip, used for phase damping
+                c_bit = obj.damp_coeff(2); %Coeff for bitflip, used for amp damping
+                c_phase = obj.damp_coeff(1); %Coeff for phaseflip, used for phase damping
                 idles = [1:target-1, target+1:nbits];
-                res = idle_bits(res, idles,c_bit, c_phase);
+                if ~isempty(idles)
+                    res = idle_bits(res, idles,c_bit, c_phase);
+                end
             end
             
             if return_state
-                res = NbitState(res);
+                rho = NbitState(res);
+                rho.copy_params(nbitstate);
+            else
+                rho = res;
             end
         end
         
@@ -165,18 +180,19 @@ classdef SingleBitGate < handle
             return_state = 0;
             if isa(nbitstate, 'NbitState')
                 nbits = nbitstate.nbits;
-                nbitstate = nbitstate.rho;
+                rho = nbitstate.rho;
                 return_state = 1;
-            elseif size(nbitstate,1) == 1 || size(nbitstate,2) == 1
+            elseif size(nbitstate,1) == 1 || size(nbitstate,2) == 1 
+                % Handles state vectors
                 rho = obj.apply_single(nbitstate,targets(1));
                 for i = 2:length(targets)
-                    rho = obj.apply(rho,targets(i));
+                    rho = obj.apply_single(rho,targets(i));
                 end
                 return
             else
                 nbits = log2(size(nbitstate,1));
             end
-            rho = obj.apply_single(nbitstate, targets(1));
+            rho = obj.apply_single(rho, targets(1));
             for i = 2:length(targets)
                 rho = obj.apply_single(rho, targets(i));
             end
@@ -184,12 +200,12 @@ classdef SingleBitGate < handle
             if (obj.idle_state == 2)
                 idles = remove_dupes(targets, 1:nbits);
                 if ~isempty(idles)
-                    c_bit = obj.error_probs(2);
-                    c_phase = obj.error_probs(4);
+                    c_bit = obj.damp_coeff(2);
+                    c_phase = obj.damp_coeff(1);
                     rho = idle_bits(rho, idles, c_bit,c_phase);
                 end
             end
-            Following 2 lines remove elements <tol
+            %Following 2 lines remove elements <tol
             if obj.tol
                 rho=rho.*(abs(rho)>obj.tol);
                 tr = trace(rho);
@@ -205,6 +221,7 @@ classdef SingleBitGate < handle
             end
             if return_state
                 rho = NbitState(rho);
+                rho.copy_params(nbitstate);
             end
             
         end
