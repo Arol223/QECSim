@@ -28,7 +28,7 @@ t_init = rho_in.t_init; % Qubit init time
 e_init = rho_in.e_init; % Qubit init error
 e_ro = rho_in.t_ro; % Readout error
 [ancilla, t_ancilla] = FlagAncillaPrep(flagged,had,e_init,t_init);
-if t_ancilla
+if t_ancilla && rho_in.T_2_hf
     % Idle error on data bits
     gamma_a = DampCoeff(t_ancilla, rho_in.T_2_hf);
     rho_out = idle_bits(rho_in,1:rho_in.nbits,0,gamma_a);   

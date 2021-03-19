@@ -52,17 +52,17 @@ for i = 1:8 % First syndrome measurement
                             p_out = p_out + p_tot;
                             
                             flag_syndromes = SteaneColorCode.flag_syndromes(l,:);
-                            flag_syndromes = split(flag_syndromes,', ');
+                            flag_syndromes = split(flag_syndromes,',');
                             flag_errors = SteaneColorCode.flag_error_set(l,:);
                             flag_errors = split(flag_errors,', ');
                             
                             [isflag, fl_ind] = ismember(num2str(syn_3),flag_syndromes);
                             if isflag
-                                corr_ind = str2double(flag_errors{fl_ind});
+                                corr_ind = str2num(flag_errors{fl_ind});
                                 rho_3 = cor_f.apply(rho_3, corr_ind);
                             else
                                 err = SteaneColorCode.minimal_corrections(n);
-                                if err ~= 0
+                                if err 
                                     rho_3 = cor_s.apply(rho_3, err);
                                 end
                             end
@@ -84,14 +84,14 @@ for i = 1:8 % First syndrome measurement
                 p_tot = p_1*p_2;
                 p_out = p_out + p_tot;
                 flag_syndromes = SteaneColorCode.flag_syndromes(j,:);
-                flag_syndromes = split(flag_syndromes,', ');
+                flag_syndromes = split(flag_syndromes,',');
                 flag_errors = SteaneColorCode.flag_error_set(j,:);
                 flag_errors = split(flag_errors,', ');
                 
                 [isflag, fl_ind] = ismember(num2str(syn_2),flag_syndromes);
                 
                 if isflag
-                    corr_ind = str2double(flag_errors{fl_ind});
+                    corr_ind = str2num(flag_errors{fl_ind});
                     rho_2 = cor_f.apply(rho_2, corr_ind);
                 else
                     err = SteaneColorCode.minimal_corrections(k);

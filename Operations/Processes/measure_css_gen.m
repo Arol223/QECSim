@@ -18,7 +18,7 @@ ancilla_sz = CSSCode.get_stabweight(type, gen_nbr); % Ancilla size, determined b
 [ancilla, t_ancilla_prep] = prep_cat_state(ancilla_sz, e_init, e_readout, CNot, had_gate,...
     t_ro, t_init); % prepare ancilla in cat state
 
-if t_ancilla_prep
+if t_ancilla_prep && nbitstate.T_2_hf
     ancilla_phase_damp = DampCoeff(t_ancilla_prep,nbitstate.T_2_hf);
     rho = idle_bits(nbitstate, 1:nbitstate.nbits, 0, ancilla_phase_damp);
 else
