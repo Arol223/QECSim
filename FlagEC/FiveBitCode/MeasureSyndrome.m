@@ -8,7 +8,7 @@ p_out = 1;
 broke = 0;
 for i = 1:4
     stab_val = syndrome(i);
-    [rho_out, p_tmp] = MeasureStabiliser(rho_in,block,cnot,had, i,stab_val,...
+    [rho_out, p_tmp] = MeasureStabiliser(rho_out,block,cnot,had, i,stab_val,...
         flagged,flag_loc==i);
     p_out = p_out*p_tmp;
     if (stab_val&&flagged) || flag_loc == i

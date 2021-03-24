@@ -12,20 +12,20 @@ for i  = 0:15
         if j && ptmp1
             errors = split(FiveQubitCode.flag_errors(j,:),', ');
             for k = 0:15
-                syn2 = dec2binvec(k);
+                syn2 = dec2binvec(k,4);
                 [rtmp2,ptmp2,~] = MeasureSyndrome(rtmp1,block,syn2,0,0,cnot,had);
                 if ptmp2
                     for l = 1:7
-                        if syn2 == SyndromeMatch(j,l)
+                        if isequal(syn2, SyndromeMatch(j,l))
                             [x_c, y_c, z_c] = MinFlagCorrection(errors{l});
                             if ~isempty(x_c)
-                                rtmp3 = xgate.apply(rtmp2,x_c);
+                                rtmp2 = xgate.apply(rtmp2,x_c);
                             end
                             if ~isempty(y_c)
-                                rtmp3 = ygate.apply(rtmp3,y_c);
+                                rtmp2 = ygate.apply(rtmp2,y_c);
                             end
                             if ~isempty(z_c)
-                                rtmp3 = zgate.apply(rtmp3,z_c);
+                                rtmp2 = zgate.apply(rtmp2,z_c);
                             end
                             continue
                         end
@@ -39,7 +39,7 @@ for i  = 0:15
             end
         elseif broke && ptmp1
             for k = 0:15
-                syn2 = dec2binvec(k);
+                syn2 = dec2binvec(k,4);
                 [rtmp2,ptmp2,~] = MeasureSyndrome(rtmp1,block,syn2,0,0,cnot,had);
                 err = str2num(FiveQubitCode.minimal_corrections(k+1,:));
                 if ptmp2
@@ -61,7 +61,7 @@ for i  = 0:15
         elseif ptmp1
             p = ptmp1;
             p_out = p_out + p;
-            [I,J,V] = find(rtmp2.rho);
+            [I,J,V] = find(rtmp1.rho);
             rho_tot{cell_ind} = [I,J,p*V];
             cell_ind = cell_ind + 1;
         end

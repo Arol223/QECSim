@@ -31,29 +31,31 @@ end
 for i = 1:length(order)
     o = order(i);
     c = controls(i);
-    if o == 'X'
-        rho_out = XNot(cnot,had,rho_out,c,1);
-    elseif o == 'Z'
-        rho_out = cnot.apply(rho_out,1,c);
-    elseif o == 'A'
-        rho_out = cnot.apply(rho_out, 1, 2); % Couple flag with measurement ancilla
+    switch o
+        case 'X'
+            rho_out = XNot(cnot,had,rho_out,c,1);
+        case 'Z'
+            rho_out = cnot.apply(rho_out,1,c);
+        case 'A'
+            rho_out = cnot.apply(rho_out, 1, 2); % Couple flag with measurement ancilla
     end
 end
 
 if flagged
+    rho_out = had.apply(rho_out,2);
    [rho_out,p_out] = measurement_e(rho_out,2,flag_val,e_ro,1,0);
    if flag_val
-       rho_out = rho_out.trace_out_bits(1:2);
+       rho_out.trace_out_bits(1:2);
        return
    end
    [rho_out,p_tmp] = measurement_e(rho_out,1,stab_val,e_ro,1,0);
    p_out = p_out*p_tmp;
-   rho_out = rho_out.trace_out_bits(1:2);
+   rho_out.trace_out_bits(1:2);
    return
 end    
 
 [rho_out, p_out] = measurement_e(rho_out,1,stab_val,e_ro,1,0);
-rho_out = rho_out.trace_out_bits(1);
+rho_out.trace_out_bits(1);
 
 end
 
