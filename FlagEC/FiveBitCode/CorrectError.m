@@ -5,15 +5,20 @@ function [rho_out, p_out] = CorrectError(rho_in, block, cnot, had, zgate,...
 rho_tot = cell(900,1);
 cell_ind = 1;
 p_out = 0;
-for i  = 0:15
+check_syndromes = [0 1 2 4 8]; % Because protocol stops when stabiliser syndrome is 1 only check 0, 1, 10, 100 etc
+for i  = check_syndromes
     syn1 = dec2binvec(i,4);
-    for j = 4:-1:0 %for every flag location
+    
+    for j = FlagPos(syn1) %for every flag location
         [rtmp1,ptmp1,broke] = MeasureSyndrome(rho_in,block,syn1,1,j,cnot,had);
+        
         if j && ptmp1
             errors = split(FiveQubitCode.flag_errors(j,:),', ');
+            
             for k = 0:15
                 syn2 = dec2binvec(k,4);
                 [rtmp2,ptmp2,~] = MeasureSyndrome(rtmp1,block,syn2,0,0,cnot,had);
+                
                 if ptmp2
                     for l = 1:7
                         if isequal(syn2, SyndromeMatch(j,l))
@@ -38,11 +43,13 @@ for i  = 0:15
                 end
             end
         elseif broke && ptmp1
+            
             for k = 0:15
                 syn2 = dec2binvec(k,4);
                 [rtmp2,ptmp2,~] = MeasureSyndrome(rtmp1,block,syn2,0,0,cnot,had);
-                err = str2num(FiveQubitCode.minimal_corrections(k+1,:));
+                
                 if ptmp2
+                    err = str2num(FiveQubitCode.minimal_corrections(k+1,:));
                     if err(1) && err(2)
                         rtmp2 = ygate.apply(rtmp2,err(1));
                         
@@ -58,6 +65,7 @@ for i  = 0:15
                     cell_ind = cell_ind + 1;
                 end
             end
+            
         elseif ptmp1
             p = ptmp1;
             p_out = p_out + p;
