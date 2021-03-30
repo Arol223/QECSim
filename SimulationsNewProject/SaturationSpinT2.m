@@ -35,9 +35,9 @@ fid_EC = fid_l;
 [xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
 [cnot, cz] = SetErrDiff(p_b_2QBG, p_p_2QBG, cnot, cz);
 
-for i = 1:length(T_2_spin)
+parfor i = 1:length(T_2_spin)
     
-    
+    [cnot,cz,xgate,~,zgate,hadgate] = MakeGates(0,0,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,1); %Gate objects
     
     [xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
     [cnot,cz] = SetErrDiff(p_b_2QBG, p_p_2QBG, cnot,cz);

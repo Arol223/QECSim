@@ -2,7 +2,7 @@
 clear
 clear GLOBAL
 ngates = 1000; % From MSc thesis, 250 gives highest p_th with max gain
-p_err = 0.25e-4; % Should be right above p_th for 250 gates
+p_err = 0.5e-4; % Should be right above p_th for 250 gates
 
 T_1_opt = 1.9e-3; % Optical T_1 for Eu
 T_2_opt = 2.6e-3; % Optical T_2 for Eu at 10 mT
