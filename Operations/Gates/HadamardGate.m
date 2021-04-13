@@ -7,8 +7,8 @@ classdef HadamardGate < SingleBitGate
     end
    
     methods
-        function obj = HadamardGate(tol,operation_time, varargin)
-                obj@SingleBitGate(tol,operation_time,varargin{:});
+        function obj = HadamardGate(varargin)
+                obj@SingleBitGate(varargin{:});
         end
 
 

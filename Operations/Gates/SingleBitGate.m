@@ -38,13 +38,20 @@ classdef SingleBitGate < handle
             end
             if nargin < 3
                 obj.T1 = Inf;
+                obj.operation_time = 0;
+                obj.damp_coeff = 0;
             else
                 obj.T1 = T1;
             end
-            
-            obj.operation_time = operation_time;
-            obj.err_from_T()
-            obj.tol = tol;
+            if nargin == 0                
+                obj.tol = 0;
+                obj.set_err(0,0);
+                obj.inc_err = 0;                
+            else
+                obj.operation_time = operation_time;
+                obj.tol = tol;
+                obj.err_from_T()
+            end
             
         end
         

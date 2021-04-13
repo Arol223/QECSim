@@ -44,6 +44,7 @@ for i = 1:8
 rho_n = rho_n + p(i).*rho(i).rho;
 end
 rho_n = sparse(rho_n);
+rho_n = rho_n./trace(rho_n);
 rho_n = NbitState(rho_n);
 rho_n.copy_params(nbitstate)
 % figure(9)

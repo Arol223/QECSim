@@ -36,12 +36,22 @@ classdef TwoBitGate < handle
             end
             if nargin < 3
                 obj.T1 = Inf;
+                obj.operation_time = 0;
+                obj.damp_coeff = 0;
             else
                 obj.T1 = T1;
+                
             end
-            obj.operation_time = operation_time;
-            obj.tol = tol;
-            obj.err_from_T()
+            
+            if nargin == 0                
+                obj.tol = 0;
+                obj.set_err(0,0);
+                obj.inc_err = 0;                
+            else
+                obj.operation_time = operation_time;
+                obj.tol = tol;
+                obj.err_from_T()
+            end
         end
         
         function p = get.p_success(obj)
@@ -49,8 +59,8 @@ classdef TwoBitGate < handle
         end
         
         function set_damp_coeff(obj, c_phase, c_amp)
-           obj.damp_coeff(1)=c_phase;
-           obj.damp_coeff(2) = c_amp;
+            obj.damp_coeff(1)=c_phase;
+            obj.damp_coeff(2) = c_amp;
         end
         
         function set_err(obj, p_bit,p_phase)
@@ -71,7 +81,7 @@ classdef TwoBitGate < handle
                 end
                 for j = 1:4
                     switch j
-                        case 1 
+                        case 1
                             p_err(i,j) = p;
                         case 2
                             p_err(i,j) = p*p_bit;
@@ -80,7 +90,7 @@ classdef TwoBitGate < handle
                         case 4
                             p_err(i,j) = p*p_phase;
                     end
-                   
+                    
                 end
             end
             p_err(1,1) = 0;
@@ -88,14 +98,14 @@ classdef TwoBitGate < handle
             obj.error_probs = p_err;
         end
         function single_bit_err(obj,p_bit,p_phase)
-           errs = [0 p_bit p_bit*p_phase p_phase];
-           obj.error_probs = zeros(4,4);
-           obj.error_probs(1,:) = errs; %This way there are no cross terms like XxY etc.
-           obj.error_probs(:,1) = errs';
-          obj.error_probs = obj.error_probs.*(obj.error_probs>obj.tol);
+            errs = [0 p_bit p_bit*p_phase p_phase];
+            obj.error_probs = zeros(4,4);
+            obj.error_probs(1,:) = errs; %This way there are no cross terms like XxY etc.
+            obj.error_probs(:,1) = errs';
+            obj.error_probs = obj.error_probs.*(obj.error_probs>obj.tol);
         end
         function uni_err(obj,p_err)
-           %Old and not in use
+            %Old and not in use
             p_sing = [p_err p_err^2 p_err]; % Error rate for sqbg
             p_sing = p_sing./sum(p_sing);
             p_sing = p_sing.*p_err;
@@ -192,8 +202,8 @@ classdef TwoBitGate < handle
                     for j = 1:4
                         p = obj.error_probs(i,j);
                         
-                            op = obj.get_err(i,j,[target control],nbits);
-                            res = res + (p*op)*(rho*op');
+                        op = obj.get_err(i,j,[target control],nbits);
+                        res = res + (p*op)*(rho*op');
                         
                     end
                 end
@@ -211,7 +221,7 @@ classdef TwoBitGate < handle
                 rho = NbitState(res);
                 rho.copy_params(nbitstate);
             else
-               rho = res;
+                rho = res;
             end
         end
         function rho = apply(obj, nbitstate, targets,controls)
@@ -240,7 +250,7 @@ classdef TwoBitGate < handle
             if (obj.idle_state == 2)
                 idles = remove_dupes(unique([targets, controls]), 1:nbits);
                 if ~isempty(idles)
-                    c_bit = obj.damp_coeff(2); %Use bitflip error rate as amplitude damping coeff 
+                    c_bit = obj.damp_coeff(2); %Use bitflip error rate as amplitude damping coeff
                     c_phase = obj.damp_coeff(1); % Phaseflip as phase damping coeff
                     rho = idle_bits(rho, idles, c_bit,c_phase);
                 end

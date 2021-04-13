@@ -5,8 +5,8 @@ classdef XGate < SingleBitGate
     end
     
     methods
-        function obj = XGate(tol,operation_time,varargin)
-            obj@SingleBitGate(tol,operation_time,varargin{:})
+        function obj = XGate(varargin)
+            obj@SingleBitGate(varargin{:})
         end
     end
     

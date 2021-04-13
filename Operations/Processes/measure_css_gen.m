@@ -13,7 +13,7 @@ end
 
 t_ro = nbitstate.t_ro;
 t_init = nbitstate.t_init;
-prep_cat_state = memoize(@prep_cat_state);
+%prep_cat_state = memoize(@prep_cat_state);
 ancilla_sz = CSSCode.get_stabweight(type, gen_nbr); % Ancilla size, determined by stabiliser weight.
 [ancilla, t_ancilla_prep] = prep_cat_state(ancilla_sz, e_init, e_readout, CNot, had_gate,...
     t_ro, t_init); % prepare ancilla in cat state

@@ -7,10 +7,10 @@ classdef YGate < SingleBitGate
     end
     
     methods
-        function obj = YGate(tol,operation_time,varargin)
+        function obj = YGate(varargin)
             %YGATE Construct an instance of this class
             %   Detailed explanation goes here
-            obj@SingleBitGate(tol,operation_time,varargin{:})
+            obj@SingleBitGate(varargin{:})
         end
         
     end
