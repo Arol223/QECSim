@@ -10,11 +10,11 @@ G = Check(num,:);
 op = char(zeros(1,len));
 for i = 1:len
         
-    if G(i) && G(i+8)
+    if G(i) && G(i+len)
         op(i) = 'Y';
     elseif G(i)
         op(i) = 'X';
-    elseif G(i+8)
+    elseif G(i+len)
         op(i) = 'Z';
     else
         op(i) = 'I';        
