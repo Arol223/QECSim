@@ -1,4 +1,4 @@
-function [rho_out, p_out] = CorrectError(rho_in, block, cnot, had, zgate,...
+function [rho_out, p_out] = CorrectError5qubit(rho_in, block, cnot, had, zgate,...
     xgate, ygate)
 %CORRECTERROR Summary of this function goes here
 %   Detailed explanation goes here
@@ -10,14 +10,14 @@ for i  = check_syndromes
     syn1 = dec2binvec(i,4);
     
     for j = FlagPos(syn1) %for every flag location
-        [rtmp1,ptmp1,broke] = MeasureSyndrome(rho_in,block,syn1,1,j,cnot,had);
+        [rtmp1,ptmp1,broke] = MeasureSyndrome5qubit(rho_in,block,syn1,1,j,cnot,had);
         
         if j && ptmp1
             errors = split(FiveQubitCode.flag_errors(j,:),', ');
             
             for k = 0:15
                 syn2 = dec2binvec(k,4);
-                [rtmp2,ptmp2,~] = MeasureSyndrome(rtmp1,block,syn2,0,0,cnot,had);
+                [rtmp2,ptmp2,~] = MeasureSyndrome5qubit(rtmp1,block,syn2,0,0,cnot,had);
                 
                 if ptmp2
                     for l = 1:7
@@ -46,7 +46,7 @@ for i  = check_syndromes
             
             for k = 0:15
                 syn2 = dec2binvec(k,4);
-                [rtmp2,ptmp2,~] = MeasureSyndrome(rtmp1,block,syn2,0,0,cnot,had);
+                [rtmp2,ptmp2,~] = MeasureSyndrome5qubit(rtmp1,block,syn2,0,0,cnot,had);
                 
                 if ptmp2
                     err = str2num(FiveQubitCode.minimal_corrections(k+1,:));

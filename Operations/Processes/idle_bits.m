@@ -19,7 +19,7 @@ if ~c_phase
     return
 end
 
-a = (1 + sqrt(1 - c_phase)); % writing phase damping as phaseflip channel
+a = (1 + sqrt(1 - c_phase))/2; % writing phase damping as phaseflip channel
 
 return_state = 0;
 if isa(nbitstate,'NbitState')
@@ -31,7 +31,7 @@ else
     rtmp = nbitstate;
 end
 
-E1 = sparse(sqrt(1 - a)*[1 0; 0 -1]);
+E1 = sparse([1 0; 0 -1]);
 for i = 1:length(targets)
     
     left = length(1:targets(i)-1);
@@ -39,7 +39,7 @@ for i = 1:length(targets)
     op = kron(speye(2^left),E1);
     op = kron(op, speye(2^right));
     
-    rtmp = a*rtmp + op*rtmp*op;
+    rtmp = a*rtmp + (1-a)*op*rtmp*op;
 end
 
 if return_state
