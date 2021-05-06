@@ -37,7 +37,7 @@ fid_EC = fid_l;
 
 
 parfor i = 1:length(T_2_spin)
-    [cnot,~,xgate,~,zgate,hadgate] = MakeGates(0,0,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,1); %Gate objects
+    [cnot,~,xgate,~,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,1); %Gate objects
     [xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
     [cnot] = SetErrDiff(p_b_2QBG, p_p_2QBG, cnot);
     T_2_s = T_2_spin(i); % Use right value for spin T_2
@@ -50,20 +50,20 @@ parfor i = 1:length(T_2_spin)
     [cnot] = SetDampCoeff(c_phase_2QBG,0, cnot); % Sets damping for 2QBG
     [xgate, zgate, hadgate] = SetDampCoeff(c_phase_SQBG,0, xgate, zgate, hadgate);
     
-    rtmp = SteaneLogicalGate(rho_l,xgate,1);
-    psi_tmp = SteaneLogicalGate(psi_l,xgate,1);
+    rtmp = xgate.apply(rho_l,5:7);
+    psi_tmp = xgate.apply(psi_l,5:7);
     for j = 2:ngates
-        rtmp = SteaneLogicalGate(rtmp,xgate,1);
-        psi_tmp = SteaneLogicalGate(psi_tmp,xgate,1);
+        rtmp = xgate.apply(rtmp,5:7);
+        psi_tmp = xgate.apply(psi_tmp,5:7);
     end
     fid_l(i) = 1 - Fid2(psi_tmp,rtmp);
     [rtmp,ptmp1] = FullFlagCorrection(rtmp,1,'X',cnot,hadgate,zgate,xgate);
     [rtmp,ptmp2] = FullFlagCorrection(rtmp,1,'Z',cnot,hadgate,xgate,zgate);
     fid_EC(i) = 1-Fid2(psi_tmp,rtmp);
 end
-[cnot,cz,xgate,~,zgate,hadgate] = MakeGates(0,0,[7.7e-6*[1 1] 3.36e-6*[1 1 1 1]],0,1); %Gate objects
+[cnot,~,xgate,~,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,1); %Gate objects
 [xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
-[cnot, cz] = SetErrDiff(p_b_2QBG, p_p_2QBG, cnot, cz);
+[cnot] = SetErrDiff(p_b_2QBG, p_p_2QBG, cnot);
 % %% Physical gate GHZ-state
 % [psi_p, rho_p] = GHZState(2);
 % fid_phys_ghz = zeros(1,length(T_2_spin));

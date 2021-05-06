@@ -22,8 +22,8 @@ classdef SteaneColorCode
                       
         minimal_corrections = [0 7 5 6 1 4 2 3]; 
         
-        log_x = ['XXXXXXX'];
-        log_z = ['ZZZZZZZ'];
+        log_x = 'XXXXXXX';
+        log_z = 'ZZZZZZZ';
         % Read as appropriate Pauli correction on given qubit
     end
     
