@@ -1,4 +1,4 @@
-function [rho_out, p_out] = CorrectionCycle(rho_in, type, cnot, had, xgate, zgate)
+function [rho_out, p_out] = CorrectionCycle(rho_in, type, cnot, had, xgate, zgate,tol)
 %CORRECTIONCYCLE Simulate a correction cycle for one error type with
 %surface17
 %       ---Inputs---
@@ -8,7 +8,11 @@ function [rho_out, p_out] = CorrectionCycle(rho_in, type, cnot, had, xgate, zgat
 %   had     - Hadamard gate object
 %   xgate   - xgate object, used for correction
 %   zgate   - zgate object, -||-
+%   tol     - tolerance for filtering results that won't have an effect on
+%             the result.
 p_out = 0;
+ms = memoize(@MeasureSyndrome);
+ms.CacheSize = 1000;
 rho_tot = cell(2^12,1);
 for i = 1:2^12
    syn = dec2binvec(i-1,12);
@@ -18,7 +22,7 @@ for i = 1:2^12
    syn_vol(:,:,3) = reshape(syn(9:12),2,2)';
    
    
-   [rtmp,ptmp] = MeasureSynVol(rho_in,syn_vol,type,cnot,had);
+   [rtmp,ptmp,ms] = MeasureSynVol(rho_in,syn_vol,type,cnot,had,tol,ms);
    if ~ptmp
        continue
    end

@@ -197,16 +197,25 @@ classdef TwoBitGate < handle
             res = rho;
             
             if obj.inc_err % Applying errors with probabilities in error_probs
-                res = res*obj.p_success;
+                rtot = cell(16,1);
+                [I,J,V] = find(res);
+                rtot{1} = [I,J,obj.p_success*V];
+                cellind = 2;
                 for i = 1:4
                     for j = 1:4
                         p = obj.error_probs(i,j);
-                        
-                        op = obj.get_err(i,j,[target control],nbits);
-                        res = res + (p*op)*(rho*op');
+                        if p >= obj.tol
+                            op = obj.get_err(i,j,[target control],nbits);
+                            [I,J,V] = find(op*rho*op');
+                            rtot{cellind} = [I,J,p*V];
+                            cellind = cellind + 1;
+                        end
                         
                     end
                 end
+                n = 2^nbits;
+                IJV = cell2mat(rtot);
+                res = sparse(IJV(:,1),IJV(:,2),IJV(:,3),n,n);
             end
             
             if (obj.idle_state == 1)
@@ -257,13 +266,13 @@ classdef TwoBitGate < handle
             end
             
             % Three following lines removes elements smaller than tol.
-            if obj.tol
-                rho = rho.*(abs(rho)>obj.tol);
-                tr = trace(rho);
-                if tr
-                    rho = rho./tr;
-                end
-            end
+%             if obj.tol
+%                 rho = rho.*(abs(rho)>obj.tol);
+%                 tr = trace(rho);
+%                 if tr
+%                     rho = rho./tr;
+%                 end
+%             end
             if (nnz(rho) > (size(rho,1)^2)/2 && issparse(rho))
                 rho = full(rho);
             elseif ~issparse(rho)
