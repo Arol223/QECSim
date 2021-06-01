@@ -12,7 +12,7 @@ function [rho_out, p_out] = CorrectionCycle(rho_in, type, cnot, had, xgate, zgat
 %             the result.
 p_out = 0;
 ms = memoize(@MeasureSyndrome);
-ms.CacheSize = 1000;
+ms.CacheSize = 16^3;
 rho_tot = cell(2^12,1);
 for i = 1:2^12
    syn = dec2binvec(i-1,12);
