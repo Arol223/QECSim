@@ -45,12 +45,12 @@ classdef TwoBitGate < handle
             
             if nargin == 0                
                 obj.tol = 0;
-                obj.set_err(0,0);
+                obj.set_err(0,0,0);
                 obj.inc_err = 0;                
             else
                 obj.operation_time = operation_time;
                 obj.tol = tol;
-                obj.err_from_T()
+%                obj.err_from_T()
             end
         end
         
@@ -63,7 +63,7 @@ classdef TwoBitGate < handle
             obj.damp_coeff(2) = c_amp;
         end
         
-        function set_err(obj, p_bit,p_phase)
+        function set_err(obj, p_x, p_y, p_z)
             % Set the error rate for bit and phase flip errors. Probability
             % of Y-error is p_bit*p_phase, and combined errors on both bits
             % use P(s_i x s_j) = P(s_i)*P(s_j)
@@ -73,22 +73,22 @@ classdef TwoBitGate < handle
                     case 1
                         p = 1; % no error
                     case 2
-                        p = p_bit;   %bitflip on control
+                        p = p_x;   %bitflip on control
                     case 3
-                        p = p_phase*p_bit;   % bit and phaseflip on control
+                        p = p_y;   % bit and phaseflip on control
                     case 4
-                        p = p_phase; %phase flip on control
+                        p = p_z; %phase flip on control
                 end
                 for j = 1:4
                     switch j
                         case 1
                             p_err(i,j) = p;
                         case 2
-                            p_err(i,j) = p*p_bit;
+                            p_err(i,j) = p*p_x;
                         case 3
-                            p_err(i,j) = p*p_bit*p_phase;
+                            p_err(i,j) = p*p_y;
                         case 4
-                            p_err(i,j) = p*p_phase;
+                            p_err(i,j) = p*p_z;
                     end
                     
                 end
@@ -191,33 +191,42 @@ classdef TwoBitGate < handle
                 nbits = log2(size(nbitstate,1));
                 rho = nbitstate;
             end
-            op = obj.get_op_el(nbits, target, control);
-            
+            op = obj.get_op_el(nbits, target, control);            
             rho =  (op*rho)*op'; %Succesful op
             res = rho;
-            
-            if obj.inc_err % Applying errors with probabilities in error_probs
-                rtot = cell(16,1);
-                [I,J,V] = find(res);
-                rtot{1} = [I,J,obj.p_success*V];
-                cellind = 2;
+            if obj.inc_err % Applying errors with probabilities in error_probs   .
+                res = res*obj.p_success;
                 for i = 1:4
                     for j = 1:4
-                        p = obj.error_probs(i,j);
-                        if p >= obj.tol
-                            op = obj.get_err(i,j,[target control],nbits);
-                            [I,J,V] = find(op*rho*op');
-                            rtot{cellind} = [I,J,p*V];
-                            cellind = cellind + 1;
-                        end
-                        
+                        p = obj.error_probs(i,j);                       
+                        op = obj.get_err(i,j,[target control],nbits);
+                        res = res + (p*op)*(rho*op');   
                     end
                 end
-                n = 2^nbits;
-                IJV = cell2mat(rtot);
-                res = sparse(IJV(:,1),IJV(:,2),IJV(:,3),n,n);
+                
             end
-            
+%             if obj.inc_err % Applying errors with probabilities in error_probs
+%                 rtot = cell(16,1);
+%                 [I,J,V] = find(res);
+%                 rtot{1} = [I,J,obj.p_success*V];
+%                 cellind = 2;
+%                 for i = 1:4
+%                     for j = 1:4
+%                         p = obj.error_probs(i,j);
+%                         if p >= obj.tol
+%                             op = obj.get_err(i,j,[target control],nbits);
+%                             [I,J,V] = find(op*rho*op');
+%                             rtot{cellind} = [I,J,p*V];
+%                             cellind = cellind + 1;
+%                         end
+% 
+%                     end
+%                 end
+%                 n = 2^nbits;
+%                 IJV = cell2mat(rtot);
+%                 res = sparse(IJV(:,1),IJV(:,2),IJV(:,3),n,n);
+%             end
+
             if (obj.idle_state == 1)
                 % Idles all bits even for sequential operations.
                 c_bit = obj.damp_coeff(2);

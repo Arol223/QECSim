@@ -45,7 +45,7 @@ classdef SingleBitGate < handle
             end
             if nargin == 0                
                 obj.tol = 0;
-                obj.set_err(0,0);
+                obj.set_err(0,0,0);
                 obj.inc_err = 0;                
             else
                 obj.operation_time = operation_time;
@@ -59,8 +59,8 @@ classdef SingleBitGate < handle
             res = 1 - sum(obj.error_probs); % Probability for gate to not fail
         end
         
-        function set_err(obj,p_bit,p_phase)
-            obj.error_probs = [0,p_bit,p_bit*p_phase,p_phase];
+        function set_err(obj,p_x,p_y,p_z)
+            obj.error_probs = [0,p_x,p_y,p_z];
         end
         
         function set_damp_coeff(obj, c_phase, c_amp)
