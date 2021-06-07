@@ -63,6 +63,12 @@ classdef TwoBitGate < handle
             obj.damp_coeff(2) = c_amp;
         end
         
+        function set_err_hom(obj,p_err_tot)
+           p_err = ones(4,4)*p_err_tot/15;
+           p_err(1,1) = 0;
+           obj.error_probs = p_err;
+        end
+        
         function set_err(obj, p_x, p_y, p_z)
             % Set the error rate for bit and phase flip errors. Probability
             % of Y-error is p_bit*p_phase, and combined errors on both bits
