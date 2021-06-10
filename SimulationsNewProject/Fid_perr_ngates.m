@@ -1,12 +1,12 @@
 clear
 clear GLOBAL
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0); %Gate objects
-p_err = logspace(-5,-2,6);
+p_err = logspace(-5,-2,24);
 p_log_pos = @(E) (E+1)/2; % measurement result is in -1,1, so this gives probability of measuring 1
 p_log_neg = @(E) (-E+1)/2;
 
 
-ngates = round(logspace(0, 3.4, 6));
+ngates = round(logspace(0, 3.4, 24));
 L = length(ngates);
 
 %% logical gate matrices
@@ -79,7 +79,7 @@ parfor i = 1:length(p_err)
     rho_l.set_e_ro(0);
     rho_l.set_e_init(0);
     
-    ngates = round(logspace(0, 3.4, 6))+1;%+1 to get the correct ngates in the k-loop
+    ngates = round(logspace(0, 3.4, 24))+1;%+1 to get the correct ngates in the k-loop
     ngates = [1 ngates];
     [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0);
     p_sqbg = p_err(i)/3;
@@ -135,7 +135,7 @@ parfor i = 1:length(p_err)
     rho_l.set_e_ro(0);
     rho_l.set_e_init(0);
     
-   ngates = round(logspace(0, 3.4, 6))+1;
+   ngates = round(logspace(0, 3.4, 24))+1;
     ngates = [1 ngates];
     [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0);
     p_sqbg = p_err(i)/3;
@@ -196,7 +196,7 @@ parfor i = 1:length(p_err)
     
     
     
-    ngates = round(logspace(0, 3.4, 6))+1;
+    ngates = round(logspace(0, 3.4, 24))+1;
     ngates = [1 ngates];
     [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6, 3.36e-6,0,0); %Gate objects
     p_sqbg = p_err(i)/3;
@@ -256,7 +256,7 @@ parfor i = 1:length(p_err)
     
     
     
-    ngates = round(logspace(0, 3.4, 6))+1;
+    ngates = round(logspace(0, 3.4, 24))+1;
     ngates = [1 ngates];
     [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0); %Gate objects
     p = p_err(i);
