@@ -1,6 +1,7 @@
 %% Saturation Spin T2, pseudo parallell
 clear
 clear GLOBAL
+n_res = 6;% resolution, number of data points
 ngates = 1000; % From MSc thesis, 250 gives highest p_th with max gain
 p_err = 1e-4; % Should be right above p_th for 250 gates
 
@@ -14,25 +15,28 @@ e_init = p_err;
 % cnot.tol = cnot_tol;
 
 [t_dur_SQBG,p_err_tot] = GateTime(p_err, T_1_opt,T_2_opt); % SQBG gate duration needed to get right error rate (~0.2 ms)
-t_dur_2QBG = 4*t_dur_SQBG; % Should be reasonable, 2QBG uses 4 times as many pulses
+t_dur_2QBG = 3*t_dur_SQBG; % Should be reasonable, 2QBG uses 4 times as many pulses
  
 p_b_SQBG = DampCoeff(t_dur_SQBG, T_1_opt); % p of bitflip error for SQBG
 p_p_SQBG = DampCoeff(t_dur_SQBG, T_2_opt); % -||- phaseflip
 
+p_tqbg = 10*p_err;
+
+%p_b_2QBG = DampCoeff(t_dur_2QBG, T_1_opt);
+%p_p_2QBG = DampCoeff(t_dur_2QBG, T_2_opt);
+
+T_2_spin = logspace(-2, 3, n_res); % Logarithmically spaced values for spin T_2 between 1 ms and ~6 hours.
 
 
-p_b_2QBG = DampCoeff(t_dur_2QBG, T_1_opt);
-p_p_2QBG = DampCoeff(t_dur_2QBG, T_2_opt);
-
-T_2_spin = logspace(-2, 3, 18); % Logarithmically spaced values for spin T_2 between 1 ms and ~6 hours.
-
-
-
+%% 
 fid_l = zeros(1,length(T_2_spin)); % Fidelities for plotting
 fid_ECShor = fid_l;
 fid_ECFlag = fid_l;
 
-
+fid_log_ShorSteane = fid_l;
+fid_log_FlagSteane = fid_l;
+fid_log_5qubit = fid_l;
+fid_log_surf17 = fid_l;
 %% Steane, both extractions
 parfor i = 1:length(T_2_spin)
     [rho_l,psi_l] = Log0FlagSteane(); % Logical zero in matrix and vector form
@@ -43,7 +47,7 @@ parfor i = 1:length(T_2_spin)
     rho_l.set_e_init(e_init);
     [cnot,cz,xgate,~,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,1); %Gate objects
     [xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG,p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
-    [cnot,cz] = SetErrDiff(p_b_2QBG, p_b_2QBG,p_p_2QBG, cnot,cz);
+    [cnot,cz] = SetHomErr2QBG(p_tqbg,cnot,cz);
     T_2_s = T_2_spin(i); % Use right value for spin T_2
     
     c_phase_SQBG = DampCoeff(t_dur_SQBG, T_2_s); % Phase damping coeff for SQBG
@@ -65,8 +69,20 @@ parfor i = 1:length(T_2_spin)
     [rtmp1,~] = CorrectSteaneShorError(rtmp1,1,'Z',cnot,cz,hadgate,xgate,zgate);
     [rtmp2,ptmp1] = FullFlagCorrection(rtmp,1,'X',cnot,hadgate,zgate,xgate);
     [rtmp2,ptmp2] = FullFlagCorrection(rtmp2,1,'Z',cnot,hadgate,xgate,zgate);
-    fid_ECFlag(i) = 1-Fid2(psi_tmp,rtmp1); % These are switched, kept like this for reference 
-    fid_ECShor(i) = 1-Fid2(psi_tmp,rtmp2);
+    fid_ECFlag(i) = 1-Fid2(psi_tmp,rtmp2); % These were switched, kept like this for reference 
+    fid_ECShor(i) = 1-Fid2(psi_tmp,rtmp1);
+    
+    r_shor = LogStateSteane(rtmp1);
+    r_flag = LogStateSteane(rtmp2);
+    
+    if ~mod(ngates,2)
+        p =[1 0]';
+    else
+        p = [0 1]';
+    end
+    fid_log_ShorSteane(i) = 1 - Fid2(p,r_shor);
+    fid_log_FlagSteane(i) = 1 - Fid2(p,r_flag);
+    
 end
 
 %% 5 qubit
@@ -86,7 +102,7 @@ for i = 1:length(T_2_spin)
     
     [cnot,~,xgate,ygate,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,1);
     [xgate,ygate,zgate,hadgate] = SetErrDiff(p_b_SQBG,p_b_SQBG, p_p_SQBG, xgate,ygate, zgate, hadgate);
-    [cnot] = SetErrDiff(p_b_2QBG, p_b_2QBG,p_p_2QBG, cnot);
+    [cnot] = SetHomErr2QBG(p_tqbg, cnot);
     T_2_s = T_2_spin(i); % Use right value for spin T_2
     
     c_phase_SQBG = DampCoeff(t_dur_SQBG, T_2_s); % Phase damping coeff for SQBG
@@ -106,6 +122,15 @@ for i = 1:length(T_2_spin)
     fid_l(i) = 1 - Fid2(psi_tmp,rtmp);
     [rtmp, ptmp] = CorrectError5qubit(rtmp,1,cnot,hadgate,zgate,xgate,ygate);
     fid_EC5qubit(i) = 1-Fid2(psi_tmp,rtmp);
+    
+    r = LogState5Qubit(rtmp);
+    
+    if ~mod(ngates,2)
+        p =[1 0]';
+    else
+        p = [0 1]';
+    end
+    fid_log_5qubit(i) = 1 - Fid2(p,r);
 end
 
 %% Surface 17
@@ -122,7 +147,7 @@ parfor i = 1:length(T_2_spin)
     
     [cnot,~,xgate,~,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,1); %Gate objects
     [xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG,p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
-    [cnot] = SetErrDiff(p_b_2QBG, p_b_2QBG,p_p_2QBG, cnot);
+    [cnot] = SetHomErr2QBG(p_tqbg, cnot);
     T_2_s = T_2_spin(i); % Use right value for spin T_2
     
     c_phase_SQBG = DampCoeff(t_dur_SQBG, T_2_s); % Phase damping coeff for SQBG
@@ -143,11 +168,20 @@ parfor i = 1:length(T_2_spin)
     [rtmp, ~] = CorrectionCycle(rtmp,'X',cnot,hadgate,xgate,zgate,1e-3*p_err^2);
     [rtmp, ~] = CorrectionCycle(rtmp,'Z',cnot,hadgate,xgate,zgate,1e-3*p_err^2);
     fid_ECSurf17(i) = 1-Fid2(psi_tmp,rtmp);
+    
+    r = LogStateSurf17(rtmp);
+    
+    if ~mod(ngates,2)
+        p =[1 0]';
+    else
+        p = [0 1]';
+    end
+    fid_log_surf17(i) = 1 - Fid2(p,r);
 end
 %% Physical gate Single Qubit
 [cnot,cz,xgate,~,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,0); %Gate objects
 [xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG,p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
-[cnot,cz] = SetErrDiff(p_b_2QBG, p_b_2QBG,p_p_2QBG, cnot,cz);
+[cnot,cz] = SetHomErr2QBG(p_tqbg, cnot,cz);
 
 
 
@@ -175,14 +209,34 @@ end
 figure()
 hold on
 T2rat = T_2_spin./T_2_opt;
-loglog(T2rat,fid_ECFlag./ngates)
-loglog(T2rat,fid_ECShor./ngates)
-loglog(T2rat,fid_EC5qubit./ngates)
-loglog(T2rat,fid_ECSurf17./ngates)
+plot(T2rat,fid_ECFlag./ngates)
+plot(T2rat,fid_ECShor./ngates)
+plot(T2rat,fid_EC5qubit./ngates)
+plot(T2rat,fid_ECSurf17./ngates)
 %semilogx(T2rat,fid_l)
 %semilogx(T2rat,fid_phys_ghz)
-semilogx(T2rat,fid_phys_single./ngates)
+plot(T2rat,fid_phys_single./ngates)
+set(gca,'xscale','log')
+set(gca,'yscale','log')
 legend('[7,1,3], flag extraction','[7,1,3], Shor extraction',...
     '[5,1,3], flag extraction','Surface17','Physical, 1bit')
 ylabel('\epsilon_{Fid}')
 xlabel('T_{2, spin}/T_{2, optical}')
+title('Physical fidelity error') 
+figure()
+hold on
+T2rat = T_2_spin./T_2_opt;
+plot(T2rat,(fid_log_FlagSteane)./ngates)
+plot(T2rat,(fid_log_ShorSteane)./ngates)
+plot(T2rat,(fid_log_5qubit)./ngates)
+plot(T2rat,(fid_log_surf17)./ngates)
+%semilogx(T2rat,fid_l)
+%semilogx(T2rat,fid_phys_ghz)
+plot(T2rat,fid_phys_single./ngates)
+set(gca,'xscale','log')
+set(gca,'yscale','log')
+legend('[7,1,3], flag extraction','[7,1,3], Shor extraction',...
+    '[5,1,3], flag extraction','Surface17','Physical, 1bit')
+ylabel('\epsilon_{Fid}')
+xlabel('T_{2, spin}/T_{2, optical}')
+title('Logical fidelity error')

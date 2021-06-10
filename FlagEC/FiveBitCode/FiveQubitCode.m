@@ -15,6 +15,10 @@ classdef FiveQubitCode
             'IIIIX, IXXII, IIIXX, XIIIY, IXIII, IIIZX, IIIYX';...
             'IIIZZ, IIXZZ, IIYZZ, IIZZZ, IIIIZ, IIIXZ, IIIYZ';...
             'IIIXZ, IXIXZ, IYIXZ, IZIXZ, IIIIZ, IIIYZ, IIIZZ'];
+        
+        X_L = 'XXXXX';
+        Z_L = 'ZZZZZ';
+        
     end
     
     methods
