@@ -1,7 +1,7 @@
 %% Saturation Spin T2, pseudo parallell
 clear
 clear GLOBAL
-n_res = 6;% resolution, number of data points
+n_res = 3;% resolution, number of data points
 ngates = 1000; % From MSc thesis, 250 gives highest p_th with max gain
 p_err = 1e-4; % Should be right above p_th for 250 gates
 
@@ -14,13 +14,16 @@ e_init = p_err;
 % cnot_tol = 1e-16;
 % cnot.tol = cnot_tol;
 
-[t_dur_SQBG,p_err_tot] = GateTime(p_err, T_1_opt,T_2_opt); % SQBG gate duration needed to get right error rate (~0.2 ms)
-t_dur_2QBG = 3*t_dur_SQBG; % Should be reasonable, 2QBG uses 4 times as many pulses
- 
-p_b_SQBG = DampCoeff(t_dur_SQBG, T_1_opt); % p of bitflip error for SQBG
-p_p_SQBG = DampCoeff(t_dur_SQBG, T_2_opt); % -||- phaseflip
+%[t_dur_SQBG,p_err_tot] = GateTime(p_err, T_1_opt,T_2_opt); % SQBG gate duration needed to get right error rate (~0.2 ms)
+t_dur_SQBG = 3.3e-6; % From adams paper (seems approx right)
+t_dur_2QBG = 7.7e-6; % Should be reasonable, 2QBG uses 4 times as many pulses
 
-p_tqbg = 10*p_err;
+p_b_SQBG = p_err/3;
+p_p_SQBG = p_err/3;
+%p_b_SQBG = DampCoeff(t_dur_SQBG, T_1_opt); % p of bitflip error for SQBG
+%p_p_SQBG = DampCoeff(t_dur_SQBG, T_2_opt); % -||- phaseflip
+
+p_tqbg = 1*p_err;
 
 %p_b_2QBG = DampCoeff(t_dur_2QBG, T_1_opt);
 %p_p_2QBG = DampCoeff(t_dur_2QBG, T_2_opt);

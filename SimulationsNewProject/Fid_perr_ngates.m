@@ -1,30 +1,14 @@
 clear
 clear GLOBAL
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0); %Gate objects
-p_err = logspace(-5,-2,24);
+p_err = logspace(-4.3,-2.22,18);
 p_log_pos = @(E) (E+1)/2; % measurement result is in -1,1, so this gives probability of measuring 1
 p_log_neg = @(E) (-E+1)/2;
 
 
-ngates = round(logspace(0, 3.4, 24));
+ngates = round(logspace(0, 3.4, 18));
 L = length(ngates);
 
-%% logical gate matrices
-
-Z = sparse([1 0; 0 -1]);
-Z5 = kron(Z,kron(Z,kron(Z,kron(Z,Z)))); %Logical Z for 5 qubit
-Z7 = kron(Z5,kron(Z,Z));    % Logical Z for Steane code
-Z_l_surf = zeros(2,2,9);
-Z_l_surf(:,:,1) = Z;
-Z_l_surf(:,:,5) = Z;
-Z_l_surf(:,:,9) = Z;
-Z_l_surf(:,:,2) = eye(2);
-Z_l_surf(:,:,3) = eye(2);
-Z_l_surf(:,:,4) = eye(2);
-Z_l_surf(:,:,6) = eye(2);
-Z_l_surf(:,:,7) = eye(2);
-Z_l_surf(:,:,8) = eye(2);
-Z_l_surf = tensor_product(Z_l_surf);
 %% Physical gate
 fid_phys = zeros(length(ngates),length(p_err));
 p_err_tot = zeros(length(p_err),1);
@@ -47,14 +31,10 @@ for n = 1:length(ngates)
             
         end
         fid_phys(n,i) = 1-Fid2(psitmp,rtmp);
-         E = trace(Z*rtmp.rho);
-        if ~mod(ng,2)
-            p_errL_phys(n,i) = 1 - p_log_pos(E);
-        else
-            p_errL_phys(n,i) = 1 - p_log_neg(E);
-        end
+        
     end
 end
+p_errL_phys = fid_phys;
 % figure(1)
 % mesh(ngates,p_err,fid_phys)
 % hold on
@@ -79,7 +59,7 @@ parfor i = 1:length(p_err)
     rho_l.set_e_ro(0);
     rho_l.set_e_init(0);
     
-    ngates = round(logspace(0, 3.4, 24))+1;%+1 to get the correct ngates in the k-loop
+    ngates = round(logspace(0, 3.4, 18))+1;%+1 to get the correct ngates in the k-loop
     ngates = [1 ngates];
     [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0);
     p_sqbg = p_err(i)/3;
@@ -101,7 +81,7 @@ parfor i = 1:length(p_err)
     psi_tmp = psi_l;
     gt_counts = 0;
     L = length(ngates)-1;
-    for j = 1:6
+    for j = 1:18
        
         for k = ngates(j):ngates(j+1)-1
              rtmp = SteaneLogicalGate(rtmp,xgate,1);
@@ -111,12 +91,14 @@ parfor i = 1:length(p_err)
         [rtmp1,ptmp1] = FullFlagCorrection(rtmp,1,'X',cnot,hadgate,zgate,xgate);
         [rtmp1,ptmp2] = FullFlagCorrection(rtmp1,1,'Z',cnot,hadgate,xgate,zgate);
         fid_EC_flag_Steane(j,i) = 1-Fid2(psi_tmp,rtmp1);
-        E = trace(Z7*rtmp1.rho);
+        
         if ~mod(gt_counts,2)
-            p_errL_flagSteane(j,i) = 1 - p_log_pos(E);
+            psiL =[1 0]';
         else
-            p_errL_flagSteane(j,i) = 1 - p_log_neg(E);
+            psiL = [0 1]';
         end
+        r = LogStateSteane(rtmp1);
+        p_errL_flagSteane(j,i) = 1 - Fid2(psiL,r); %Logical fidelity
     end
     
 end
@@ -135,7 +117,7 @@ parfor i = 1:length(p_err)
     rho_l.set_e_ro(0);
     rho_l.set_e_init(0);
     
-   ngates = round(logspace(0, 3.4, 24))+1;
+   ngates = round(logspace(0, 3.4, 18))+1;
     ngates = [1 ngates];
     [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0);
     p_sqbg = p_err(i)/3;
@@ -157,7 +139,7 @@ parfor i = 1:length(p_err)
     psi_tmp = psi_l;
     gt_counts = 0;
     L = length(ngates) - 1;
-    for j = 1:6
+    for j = 1:18
        
         for k = ngates(j):ngates(j+1)-1
              rtmp = SteaneLogicalGate(rtmp,xgate,1);
@@ -168,12 +150,13 @@ parfor i = 1:length(p_err)
        [rtmp1,ptmp2] = CorrectSteaneShorError(rtmp1,1,'Z',cnot,cz,hadgate,xgate,zgate);
        fid_EC_shor_Steane(j,i) = 1-Fid2(psi_tmp,rtmp1);
        
-       E = trace(Z7*rtmp1.rho);
-        if ~mod(gt_counts,2)
-            p_errL_SteaneShor(j,i) = 1 - p_log_pos(E);
+       if ~mod(gt_counts,2)
+            psiL =[1 0]';
         else
-            p_errL_SteaneShor(j,i) = 1 - p_log_neg(E);
+            psiL = [0 1]';
         end
+        r = LogStateSteane(rtmp1);
+        p_errL_SteaneShor(j,i) = 1 - Fid2(psiL,r); %Logical fidelity
     end
     
 end
@@ -196,7 +179,7 @@ parfor i = 1:length(p_err)
     
     
     
-    ngates = round(logspace(0, 3.4, 24))+1;
+    ngates = round(logspace(0, 3.4, 18))+1;
     ngates = [1 ngates];
     [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6, 3.36e-6,0,0); %Gate objects
     p_sqbg = p_err(i)/3;
@@ -219,7 +202,7 @@ parfor i = 1:length(p_err)
     psi_tmp = psi_l;
     gt_counts = 0;
     L = length(ngates) - 1;
-    for j = 1:6
+    for j = 1:18
        
         for k = ngates(j):ngates(j+1)-1
              rtmp = LogGate5Qubit(rtmp,'X',1,xgate,ygate,zgate);
@@ -230,12 +213,13 @@ parfor i = 1:length(p_err)
         %rtmp2 = CorrectError(rtmp1,1,cnot,hadgate,zgate,xgate,ygate);
         fid_EC_5qubit1(j,i) = 1-Fid2(psi_tmp,rtmp1);
         %fid_EC_5qubit2(j,i) = 1-Fid2(psi_tmp,rtmp2);
-         E = trace(Z5*rtmp1.rho);
         if ~mod(gt_counts,2)
-            p_errL_5qubit(j,i) = 1 - p_log_pos(E);
+            psiL =[1 0]';
         else
-            p_errL_5qubit(j,i) = 1 - p_log_neg(E);
+            psiL = [0 1]';
         end
+        r = LogState5Qubit(rtmp1);
+        p_errL_5qubit(j,i) = 1 - Fid2(psiL,r); %Logical fidelity
     end
     
 end
@@ -256,7 +240,7 @@ parfor i = 1:length(p_err)
     
     
     
-    ngates = round(logspace(0, 3.4, 24))+1;
+    ngates = round(logspace(0, 3.4, 18))+1;
     ngates = [1 ngates];
     [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0); %Gate objects
     p = p_err(i);
@@ -279,7 +263,7 @@ parfor i = 1:length(p_err)
     psi_tmp = psi_l;
     gt_counts = 0;
     L = length(ngates) - 1;
-    for j = 1:6
+    for j = 1:18
        
         for k = ngates(j):ngates(j+1)-1
              rtmp = xgate.apply(rtmp,[3 5 7]);
@@ -290,12 +274,14 @@ parfor i = 1:length(p_err)
         rtmp1 = CorrectionCycle(rtmp1,'Z',cnot,hadgate,xgate,zgate,p^2*1e-3);
         %rtmp2 = CorrectError(rtmp1,1,cnot,hadgate,zgate,xgate,ygate);
         fid_EC_surf17(j,i) = 1-Fid2(psi_tmp,rtmp1);
-        E = trace(Z_l_surf*rtmp1.rho);
+        
         if ~mod(gt_counts,2)
-            p_errL_surf17(j,i) = 1 - p_log_pos(E);
+            psiL =[1 0]';
         else
-            p_errL_surf17(j,i) = 1 - p_log_neg(E);
+            psiL = [0 1]';
         end
+        r = LogStateSurf17(rtmp1);
+        p_errL_surf17(j,i) = 1 - Fid2(psiL,r); %Logical fidelity
     end
     
 end
@@ -303,7 +289,7 @@ end
 gain_fid_surf17 = fid_phys./fid_EC_surf17;
 gain_logerr_surf17 = p_errL_phys./p_errL_surf17;
 
-save('Results/Gain/gain24x24All')
+save('GainHomErr18x18')
 %%
 % p_err_tot = 2*p_err;
 % bottom = min(min(min(gain_5qubit1)),min(min(gain_flag)));
