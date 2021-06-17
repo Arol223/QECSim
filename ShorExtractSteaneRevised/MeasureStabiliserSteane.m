@@ -17,6 +17,7 @@ t_ro = rho_in.t_ro;
 t_init = rho_in.t_init;
 e_ro = rho_in.e_ro;
 e_init = rho_in.e_init;
+sym = rho_in.sym;
 
 [t_ancilla, ancilla] = BuildCatState(cnot,had,e_init,t_init,e_ro,t_ro);
 if t_ancilla && rho_in.T_2_hf
