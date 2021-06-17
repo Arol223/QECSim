@@ -28,7 +28,7 @@ p_tqbg = 1*p_err;
 %p_b_2QBG = DampCoeff(t_dur_2QBG, T_1_opt);
 %p_p_2QBG = DampCoeff(t_dur_2QBG, T_2_opt);
 
-T_2_spin = logspace(-2, 3, n_res); % Logarithmically spaced values for spin T_2 between 1 ms and ~6 hours.
+T_2_spin = logspace(-3, 3, n_res); % Logarithmically spaced values for spin T_2 between 1 ms and ~6 hours.
 
 
 %% 
@@ -49,8 +49,8 @@ parfor i = 1:length(T_2_spin)
     rho_l.set_e_ro(e_ro);
     rho_l.set_e_init(e_init);
     [cnot,cz,xgate,~,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,1); %Gate objects
-    [xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG,p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
-    [cnot,cz] = SetHomErr2QBG(p_tqbg,cnot,cz);
+    [xgate,zgate,hadgate] = SetT12Errs(t_dur_SQBG,T_1_opt,T_2_opt, xgate,zgate,hadgate);
+    [cnot,cz] = SetT12Errs(t_dur_2QBG,T_1_opt,T_2_opt,cnot,cz);
     T_2_s = T_2_spin(i); % Use right value for spin T_2
     
     c_phase_SQBG = DampCoeff(t_dur_SQBG, T_2_s); % Phase damping coeff for SQBG
@@ -104,8 +104,8 @@ fid_EC5qubit = fid_l;
 for i = 1:length(T_2_spin)
     
     [cnot,~,xgate,ygate,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,1);
-    [xgate,ygate,zgate,hadgate] = SetErrDiff(p_b_SQBG,p_b_SQBG, p_p_SQBG, xgate,ygate, zgate, hadgate);
-    [cnot] = SetHomErr2QBG(p_tqbg, cnot);
+    [xgate,ygate,zgate,hadgate] = SetT12Errs(t_dur_SQBG,T_1_opt,T_2_opt, xgate,ygate,zgate,hadgate);
+    [cnot] = SetT12Errs(t_dur_2QBG,T_1_opt,T_2_opt,cnot);
     T_2_s = T_2_spin(i); % Use right value for spin T_2
     
     c_phase_SQBG = DampCoeff(t_dur_SQBG, T_2_s); % Phase damping coeff for SQBG
@@ -149,8 +149,8 @@ parfor i = 1:length(T_2_spin)
     rho_l.set_e_init(e_init);
     
     [cnot,~,xgate,~,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,1); %Gate objects
-    [xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG,p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
-    [cnot] = SetHomErr2QBG(p_tqbg, cnot);
+    [xgate,zgate,hadgate] = SetT12Errs(t_dur_SQBG,T_1_opt,T_2_opt, xgate,zgate,hadgate);
+    [cnot] = SetT12Errs(t_dur_2QBG,T_1_opt,T_2_opt,cnot);
     T_2_s = T_2_spin(i); % Use right value for spin T_2
     
     c_phase_SQBG = DampCoeff(t_dur_SQBG, T_2_s); % Phase damping coeff for SQBG
@@ -183,8 +183,8 @@ parfor i = 1:length(T_2_spin)
 end
 %% Physical gate Single Qubit
 [cnot,cz,xgate,~,zgate,hadgate] = MakeGates(0,0,t_dur_2QBG,t_dur_SQBG,0,0); %Gate objects
-[xgate,zgate,hadgate] = SetErrDiff(p_b_SQBG,p_b_SQBG, p_p_SQBG, xgate, zgate, hadgate);
-[cnot,cz] = SetHomErr2QBG(p_tqbg, cnot,cz);
+[xgate,zgate,hadgate] = SetT12Errs(t_dur_SQBG,T_1_opt,T_2_opt, xgate,zgate,hadgate);
+% [cnot,cz] = SetHomErr2QBG(p_tqbg, cnot,cz);
 
 
 

@@ -5,7 +5,7 @@ function [p_err] = CnotErrors(t_dur,T1,T2)
 
 p_IX = p_X*(1 - 2*p_X - p_Z);
 p_XX = p_X^2;
-p_XZ = p_X*P_Z;
+p_XZ = p_X*p_Z;
 p_IZ = p_Z*(1 - 2*p_X - p_Z);
 p_ZZ = p_Z^2;
 

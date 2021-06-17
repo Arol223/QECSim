@@ -46,7 +46,7 @@ elseif type == 'Z'
    end
 end
 [rho_out, p_out] = measurement_e(rho_out,1,val,e_ro,1,sym);
-if 
+
 rho_out.trace_out_bits(1);
 
 end

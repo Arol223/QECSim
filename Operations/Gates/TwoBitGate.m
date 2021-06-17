@@ -63,7 +63,7 @@ classdef TwoBitGate < handle
             obj.damp_coeff(2) = c_amp;
         end
         
-        function T1T2errors(obj, t_dur, T1, T2)
+        function errFromT12(obj, t_dur, T1, T2)
             if nargin == 0
                 t_dur = obj.operation_time;
                 T1 = obj.T1;
