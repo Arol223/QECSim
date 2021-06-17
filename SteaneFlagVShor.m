@@ -11,8 +11,8 @@ parfor i = 1:8
     rho = NbitState(rho);
     
     p = p_err(i);
-    p_cnot = 10*p;
-    rho.e_init = p;
+    p_cnot = 15*p;
+    rho.e_init = p_cnot;
     rho.e_ro = p_cnot;
     rho.sym_ro = 1;
     [cnot,cz,xgate,~,zgate,had] = MakeGates(0,0,0,0,0,0);
