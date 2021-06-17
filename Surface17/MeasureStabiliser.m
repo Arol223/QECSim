@@ -16,6 +16,7 @@ end
 e_init = rho_in.e_init;
 t_init = rho_in.t_init;
 e_ro = rho_in.e_ro;
+sym = rho_in.sym_ro;
 t_ro = rho_in.t_ro;
 
 ancilla = NbitState();
@@ -44,7 +45,8 @@ elseif type == 'Z'
        rho_out = cnot.apply(rho_out, 1, ctrl);
    end
 end
-[rho_out, p_out] = measurement_e(rho_out,1,val,e_ro,1,0);
+[rho_out, p_out] = measurement_e(rho_out,1,val,e_ro,1,sym);
+if 
 rho_out.trace_out_bits(1);
 
 end

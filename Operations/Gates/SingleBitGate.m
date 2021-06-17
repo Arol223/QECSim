@@ -59,6 +59,16 @@ classdef SingleBitGate < handle
             res = 1 - sum(obj.error_probs); % Probability for gate to not fail
         end
         
+        function errFromT12(obj, t_dur, T1,T2)
+            if nargin == 0
+                t_dur = obj.operation_time;
+                T1 = obj.T1;
+                T2 = obj.T2;
+            end
+            [p_XY, p_Z] = CoeffsFromT12(t_dur, T1, T2);
+            obj.error_probs = [0 p_XY p_XY p_Z];
+        end
+        
         function set_err(obj,p_x,p_y,p_z)
             obj.error_probs = [0,p_x,p_y,p_z];
         end

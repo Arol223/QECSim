@@ -27,6 +27,7 @@ function [rho_out, p_out] = FlagStabMeasurement(rho_in, block,cnot, had,...
 t_init = rho_in.t_init; % Qubit init time
 e_init = rho_in.e_init; % Qubit init error
 e_ro = rho_in.t_ro; % Readout error
+sym = rho_in.sym_ro;
 [ancilla, t_ancilla] = FlagAncillaPrep(flagged,had,e_init,t_init);
 if t_ancilla && rho_in.T_2_hf
     % Idle error on data bits
@@ -60,9 +61,9 @@ if flagged
         rho_out = cnot.apply(rho_out,1,2);
         rho_out = XNot(cnot,had,rho_out,dta_ctrls(4),dta_target);
     end
-    [rho_out,p1] = measurement_e(rho_out, 1, stab_val,e_ro, 1, 0); % measuring stabiliser value
+    [rho_out,p1] = measurement_e(rho_out, 1, stab_val,e_ro, 1, sym); % measuring stabiliser value
     rho_out = had.apply(rho_out, 2);    % Applying hadamard gate for X-basis measurement
-    [rho_out,p2] = measurement_e(rho_out, 2, flag_val, e_ro, 1, 0); % measuring the flag
+    [rho_out,p2] = measurement_e(rho_out, 2, flag_val, e_ro, 1, sym); % measuring the flag
     p_out = p1*p2; % probability of measuring flag and stabiliser ev combo
     rho_out.trace_out_bits(1:2);
 else
@@ -78,7 +79,7 @@ else
         rho_out = XNot(cnot,had,rho_out,dta_ctrls(3),dta_target);
         rho_out = XNot(cnot,had,rho_out,dta_ctrls(4),dta_target);
     end
-    [rho_out, p_out] = measurement_e(rho_out,1,stab_val,e_ro,1,0);
+    [rho_out, p_out] = measurement_e(rho_out,1,stab_val,e_ro,1,sym);
     rho_out.trace_out_bits(1);
 end
 

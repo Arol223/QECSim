@@ -1,5 +1,5 @@
 function [rho, p] = measurement_e( nbitstate, target, val, e_readout,...
-    output_state, ~)
+    output_state, sym)
 %MEASUREMENT_E Performs a projective measurement with readout error.
 %Returns resulting state rho and corresponding probability p
 %   Works the same way as function projective_measurement, but adds a
@@ -12,7 +12,7 @@ function [rho, p] = measurement_e( nbitstate, target, val, e_readout,...
 
 
 [rho, p] = projective_measurement(nbitstate, target, val, 0); % rho returned as matrix
-sym = 0;
+%sym = 0;
 
 if (isa(nbitstate, "NbitState") && nbitstate.t_ro)
     % Idle non-measured bits unless measurement time of state is 0

@@ -1,19 +1,22 @@
-p_err = logspace(-5,-2,8);
+clear
+
+res = 6;
+p_err = logspace(-5,-2,res);
 
 
 
 
-fid_shor = zeros(1,8);
-fid_flag = zeros(1,8);
+fid_shor = zeros(1,res);
+fid_flag = zeros(1,res);
 
-parfor i = 1:8
+parfor i = 1:res
     [rho,psi] = Log0FlagSteane();
     rho = NbitState(rho);
     
     p = p_err(i);
-    p_cnot = 15*p;
-    rho.e_init = p_cnot;
-    rho.e_ro = p_cnot;
+    p_cnot = 10*p;
+    rho.e_init = p;
+    rho.e_ro = p;
     rho.sym_ro = 1;
     [cnot,cz,xgate,~,zgate,had] = MakeGates(0,0,0,0,0,0);
     [xgate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate, zgate, had); 

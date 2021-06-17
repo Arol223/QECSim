@@ -63,11 +63,22 @@ classdef TwoBitGate < handle
             obj.damp_coeff(2) = c_amp;
         end
         
+        function T1T2errors(obj, t_dur, T1, T2)
+            if nargin == 0
+                t_dur = obj.operation_time;
+                T1 = obj.T1;
+                T2 = obj.T2;
+            end
+            obj.error_probs = CnotErrors(t_dur,T1,T2);
+        end
+        
         function set_err_hom(obj,p_err_tot)
            p_err = ones(4,4)*p_err_tot/15;
            p_err(1,1) = 0;
            obj.error_probs = p_err;
         end
+        
+       
         
         function set_err(obj, p_x, p_y, p_z)
             % Set the error rate for bit and phase flip errors. Probability
@@ -130,11 +141,7 @@ classdef TwoBitGate < handle
             obj.error_probs = obj.error_probs.*(obj.error_probs>obj.tol);
         end
         
-        function err_from_T(obj)
-            p_bit =  1 - exp(-obj.operation_time./obj.T1);
-            p_phase = 1 - exp(-obj.operation_time./obj.T2);
-            obj.set_err(p_bit,p_phase); % Correct probabilities
-        end
+
         
         function res = get_err(obj, i, j, targets, nbits)
             if targets(2)<targets(1)

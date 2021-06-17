@@ -12,7 +12,6 @@ L = length(ngates);
 %% Physical gate
 fid_phys = zeros(length(ngates),length(p_err));
 p_err_tot = zeros(length(p_err),1);
-p_errL_phys = zeros(length(ngates),length(p_err));
 for n = 1:length(ngates)
     ng = ngates(n);
     rho_p = NbitState([1 0;0 0]); %p for physical

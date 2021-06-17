@@ -45,7 +45,7 @@ extract_controls = [3 2 1];
 
 rho_out = cnot.apply(rho_out, extract_targets, extract_controls);
 rho_out = had.apply(rho_out,1);
-[rho_out,p_out] = measurement_e(rho_out,1,val,e_ro,1,0);
+[rho_out,p_out] = measurement_e(rho_out,1,val,e_ro,1,sym_ro);
 rho_out.trace_out_bits(1:4);
 end
 
