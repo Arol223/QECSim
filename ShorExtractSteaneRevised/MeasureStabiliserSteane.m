@@ -17,9 +17,9 @@ t_ro = rho_in.t_ro;
 t_init = rho_in.t_init;
 e_ro = rho_in.e_ro;
 e_init = rho_in.e_init;
-sym = rho_in.sym;
+sym_ro = rho_in.sym_ro;
 
-[t_ancilla, ancilla] = BuildCatState(cnot,had,e_init,t_init,e_ro,t_ro);
+[t_ancilla, ancilla] = BuildCatState(cnot,had,e_init,t_init,e_ro,t_ro,sym_ro);
 if t_ancilla && rho_in.T_2_hf
     c_phase = DampCoeff(t_ancilla,rho_in.T_2_hf);
     rho_out = idle_bits(rho_in,1:rho_in.nbits,0,c_phase);
