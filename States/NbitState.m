@@ -11,6 +11,7 @@ classdef NbitState < handle
         t_init;     % Initialisation time
         e_init;     % Initialisation error
         e_ro;       % Readout error
+        sym_ro;     % If readout errors are symetric or asymmetric
     end
     
     properties (Dependent = true)
@@ -32,6 +33,7 @@ classdef NbitState < handle
             obj.t_init = 0;
             obj.e_init = 0;
             obj.e_ro = 0;
+            obj.sym_ro = 0;
         end
         
         function copy_params(obj, oth)
@@ -42,6 +44,7 @@ classdef NbitState < handle
            obj.t_init = oth.t_init;
            obj.e_init = oth.e_init;
            obj.e_ro = oth.e_ro;
+           obj.sym_ro = oth.sym_ro;
         end
         
         function set_T1(obj, T1)
