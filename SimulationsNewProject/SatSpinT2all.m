@@ -2,7 +2,7 @@
 clear
 clear GLOBAL
 n_res = 3;% resolution, number of data points
-ngates = 1000; % From MSc thesis, 250 gives highest p_th with max gain
+ngates = 100; % From MSc thesis, 250 gives highest p_th with max gain
 p_err = 1e-4; % Should be right above p_th for 250 gates
 
 T_1_opt = 1.9e-3; % Optical T_1 for Eu
@@ -140,7 +140,7 @@ end
 fid_l = zeros(1,length(T_2_spin)); % Fidelities for plotting
 fid_ECSurf17 = fid_l;
 parfor i = 1:length(T_2_spin)
-    ngates = 1000;
+    ngates = 100;
     
     [psi_l, rho_l] = Logical0Surf17(); % Logical zero in matrix and vector form
     rho_l.set_t_ro(t_ro); % Set readout time for state
