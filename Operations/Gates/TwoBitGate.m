@@ -207,7 +207,7 @@ classdef TwoBitGate < handle
             op = obj.get_op_el(nbits, target, control);            
             rho =  (op*rho)*op'; %Succesful op
             res = rho;
-            if obj.inc_err % Applying errors with probabilities in error_probs   .
+            if obj.inc_err && obj.p_success ~= 1% Applying errors with probabilities in error_probs   .
                 res = res*obj.p_success;
                 for i = 1:4
                     for j = 1:4

@@ -12,7 +12,7 @@ cat = cnot.apply(cat,1,2);
 cat = cnot.apply(cat,4,3);
 cat = cnot.apply(cat,5,4);
 cat = cnot.apply(cat,1,5);
-cat = measurement_e(cat,1,0,e_ro,1,sym);
+[cat,p] = measurement_e(cat,1,0,e_ro,1,sym);
 cat.trace_out_bits(1)
 
 t_tot = 5*cnot.operation_time + 5*t_init + had.operation_time + t_ro;

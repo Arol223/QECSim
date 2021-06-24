@@ -22,6 +22,11 @@ function [rho_out, p_out] = FlagCorrect(rho_in, block, type, cnot, had, cor_s, c
 p_out = 0;
 rho_tot = cell(1800,1);
 cell_ind = 1;   % Cell for storing matrices
+if type == 'X' %While measuring x-stabilisers x errors propagate, otherwise z-errors propagate
+    flg_type = 'Z';
+else
+    flg_type = 'X';
+end
 for i = 1:8 % First syndrome measurement
     
     syn_1 = dec2binvec(i-1,3);
@@ -37,23 +42,23 @@ for i = 1:8 % First syndrome measurement
                 
                 syn_2 = dec2binvec(k-1,3);
                 
-                for l = 1:3  % Flag can happen in 3 places (1st 2nd or 3d stabiliser measurement)
+                for L = 1:3  % Flag can happen in 3 places (1st 2nd or 3d stabiliser measurement)
                     
                     [rho_2, p_2] = FlagSyndromeMeasurement(rho_1, syn_2,...
-                        block, type,1,l,cnot,had);
+                        block, type,1,L,cnot,had);
                     if p_2
                         for n = 1:8  % measure the syndrome with non flag circuit
                             
                             syn_3 = dec2binvec(n-1,3);
                             [rho_3, p_3] = FlagSyndromeMeasurement(rho_2, syn_3,...
-                                block, type,0,0,cnot,had);
+                                block, flg_type,0,0,cnot,had);
                             if p_3
                             p_tot = p_1*p_2*p_3;
                             p_out = p_out + p_tot;
                             
-                            flag_syndromes = SteaneColorCode.flag_syndromes(l,:);
+                            flag_syndromes = SteaneColorCode.flag_syndromes(L,:);
                             flag_syndromes = split(flag_syndromes,',');
-                            flag_errors = SteaneColorCode.flag_error_set(l,:);
+                            flag_errors = SteaneColorCode.flag_error_set(L,:);
                             flag_errors = split(flag_errors,', ');
                             
                             [isflag, fl_ind] = ismember(num2str(syn_3),flag_syndromes);
@@ -63,7 +68,7 @@ for i = 1:8 % First syndrome measurement
                             else
                                 err = SteaneColorCode.minimal_corrections(n);
                                 if err 
-                                    rho_3 = cor_s.apply(rho_3, err);
+                                    rho_3 = cor_f.apply(rho_3, err);
                                 end
                             end
                             [I,J,V] = find(rho_3.rho);
@@ -80,7 +85,7 @@ for i = 1:8 % First syndrome measurement
             for k = 1:8
                 syn_2 = dec2binvec(k-1,3);
                 [rho_2,p_2] = FlagSyndromeMeasurement(rho_1, syn_2,...
-                    block,type,0,0,cnot,had);
+                    block,flg_type,0,0,cnot,had);
                 p_tot = p_1*p_2;
                 p_out = p_out + p_tot;
                 flag_syndromes = SteaneColorCode.flag_syndromes(j,:);
@@ -96,7 +101,7 @@ for i = 1:8 % First syndrome measurement
                 else
                     err = SteaneColorCode.minimal_corrections(k);
                     if err 
-                        rho_2 = cor_s.apply(rho_3, err);
+                        rho_2 = cor_f.apply(rho_3, err);
                     end
                 end
                 [I,J,V] = find(rho_2.rho);
