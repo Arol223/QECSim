@@ -9,7 +9,7 @@ p_err = logspace(-5,-2,res);
 fid_shor = zeros(1,res);
 fid_flag = zeros(1,res);
 
-parfor i = 1:res
+for i = 1:res
     [rho,psi] = Log0FlagSteane();
     rho = NbitState(rho);
     
