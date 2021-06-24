@@ -36,9 +36,10 @@ else
     gen = cz;
 end
 
-targets = SteaneColorCode.stabilisers(num,:) + 7*(block-1) + 4;
+targets = sort(SteaneColorCode.stabilisers(num,:),'descend') + 7*(block-1) + 4;
 
-rho_out = gen.apply(rho_out, targets, 1:4);
+
+rho_out = gen.apply(rho_out, targets, 4:-1:1);
 
 extract_targets = [4 3 2];
 extract_controls = [3 2 1];
