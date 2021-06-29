@@ -99,13 +99,13 @@ figure();
 %plot(p_err,fid_shor./p_err.^2);
 hold on
 
-plot(p_err,fid_5qubit./p_err.^2)
-plot(p_err,fid_flag./p_err.^2);
-plot(p_err,fid_surf./p_err.^2);
-plot(p_err,p_err.^(-1));
+plot(p_err,fid_5qubit./p_err.^0)
+plot(p_err,fid_flag./p_err.^0);
+plot(p_err,fid_surf./p_err.^0);
+plot(p_err,p_err.^(1));
 set(gca,'xscale','log')
 set(gca,'yscale','log')
-legend('[[5,13]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
+legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
 xlabel('$p_{err}$')
 title('Error Fidelity')
 h = gca;
