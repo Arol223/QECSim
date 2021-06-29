@@ -1,6 +1,6 @@
 clear
 
-res = 6;
+res = 18;
 p_err = logspace(-4,-1,res);
 
 
@@ -118,10 +118,10 @@ figure();
 %plot(p_err,fid_shor./p_err.^2);
 hold on
 
-plot(p_err,fid_L_5qubit./p_err.^2)
-plot(p_err,fidL_flag./p_err.^2);
-plot(p_err,fid_L_surf./p_err.^2);
-plot(p_err,p_err.^(-1));
+plot(p_err,fid_L_5qubit./p_err.^0)
+plot(p_err,fidL_flag./p_err.^0);
+plot(p_err,fid_L_surf./p_err.^0);
+plot(p_err,p_err.^(1));
 set(gca,'xscale','log')
 set(gca,'yscale','log')
 legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
