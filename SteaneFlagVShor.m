@@ -7,14 +7,12 @@ p_err = logspace(-4,-1,res);
 %% Steane Code
 %fid_shor = zeros(1,res);
 fid_flag = zeros(1,res);
-fidL_flag = fid_flag;
-parfor i = 1:res
-    
+
+for i = 1:res
     [rho,psi] = Log0FlagSteane();
     rho = NbitState(rho);
-    X_L = BuildOpMat('XXXXXXX');
-    not_psi = X_L*psi;
-    not_psi_L = [0;1];
+    %X_L = BuildOpMat('XXXXXXX');
+    %not_psi = X_L*psi;
     p = p_err(i);
     p_cnot = p;
     rho.e_init = p;
@@ -107,7 +105,7 @@ plot(p_err,fid_surf./p_err.^0);
 plot(p_err,p_err.^(1));
 set(gca,'xscale','log')
 set(gca,'yscale','log')
-legend('[[5,13]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
+legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
 xlabel('$p_{err}$')
 title('Error Fidelity')
 h = gca;

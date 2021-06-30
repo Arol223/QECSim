@@ -208,6 +208,7 @@ classdef SingleBitGate < handle
                 return
             else
                 nbits = log2(size(nbitstate,1));
+                rho = nbitstate;
             end
             rho = obj.apply_single(rho, targets(1));
             for i = 2:length(targets)
