@@ -20,8 +20,15 @@ switch word
     case '0'
         psi = psi_0;
     case '+'
-        psi = (1/sqrt(2))*(psi_0+X*psi_0);
-    
+        psi = (1/sqrt(2))*(psi_0 + X*psi_0);
+    case '1'
+        psi = X*psi_0;
+    case '-'
+        psi = (1/sqrt(2))*(psi_0 - X*psi_0);
+    case 'y+'
+        psi = (1/sqrt(2))*(psi_0 + 1i*X*psi_0);
+    case 'y-'
+        psi = (1/sqrt(2))*(psi_0 - 1i*X*psi_0);
 end
 rho = NbitState(psi*psi');
 end
