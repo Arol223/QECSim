@@ -9,7 +9,7 @@ z = ZGate(0,0);
 
 rho_out = zeros(size(rho_in));
 for i = 0:15
-    syn = dec2binvec(i);
+    syn = dec2binvec(i,4);
     corr = MinWeightMatch('X',syn);
     [rtmp, ptmp] = MeasureSyndrome(rho_in,syn,'X',cnot,had);
     if ~isempty(corr)
@@ -19,7 +19,7 @@ for i = 0:15
 end
 
 for i = 0:15
-    syn = dec2binvec(i);
+    syn = dec2binvec(i,4);
     corr = MinWeightMatch('Z',syn);
     [rtmp, ptmp] = MeasureSyndrome(rho_in,syn,'Z',cnot,had);
     if ~isempty(corr)

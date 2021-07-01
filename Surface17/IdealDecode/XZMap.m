@@ -1,7 +1,11 @@
 function [z_ind] = XZMap(x_ind)
 %XZMAP Map X-stabiliser qubit number to corresponding for Z
 
-if length(x_ind) > 1
+
+if isempty(x_ind)
+    z_ind = x_ind;
+    return
+elseif length(x_ind) > 1 
     z_ind = zeros(size(x_ind));
     for i = 1:length(z_ind)
         z_ind(i) = XZMap(x_ind(i));
