@@ -7,7 +7,7 @@ id_0 = [1;0];
 id_1 = [0;1];
 id_plus = (1/sqrt(2))*(id_0 + id_1);
 id_min = (1/sqrt(2))*(id_0 - id_1);
-LogState = '+';
+LogState = '0';
 
 switch LogState  %Determine what the wrong state is
     case '0'
@@ -33,7 +33,7 @@ parfor i = 1:res
     rho.e_init = p;
     rho.e_ro = p;
     rho.sym_ro = 1;
-    [cnot,cz,xgate,~,zgate,had] = MakeGates(0,0,0,0,0,1);
+    [cnot,cz,xgate,~,zgate,had] = MakeGates(0,0,0,0,0,0);
     [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
     [xgate,zgate,had] = SetDampCoeff(p,0,xgate,zgate,had);
     [xgate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate, zgate, had); 
@@ -67,7 +67,7 @@ for i = 1:res
     rho.e_init = p;
     rho.e_ro = p;
     rho.sym_ro = 1;
-    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,1);
+    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,0);
     [xgate,ygate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate,ygate, zgate, had); 
     [cnot,cz] = SetHomErr2QBG(p_cnot,cnot,cz);
     
@@ -93,7 +93,7 @@ parfor i = 1:res
     rho.e_init = p;
     rho.e_ro = p;
     rho.sym_ro = 1;
-    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,1);
+    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,0);
     [xgate,ygate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate,ygate, zgate, had); 
     [cnot,cz] = SetHomErr2QBG(p_cnot,cnot,cz);
     [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
