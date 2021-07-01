@@ -1,15 +1,30 @@
 clear
 
-res = 18;
+res = 3;
 p_err = logspace(-4,-1,res);
 
+id_0 = [1;0];
+id_1 = [0;1];
+id_plus = (1/sqrt(2))*(id_0 + id_1);
+id_min = (1/sqrt(2))*(id_0 - id_1);
+LogState = '+';
 
+switch LogState  %Determine what the wrong state is
+    case '0'
+        n_psi = id_1;
+    case '1'
+        n_psi = id_0;
+    case '+'
+        n_psi = id_min;
+    case '-'
+        n_psi = id_plus;
+end
 %% Steane Code
 %fid_shor = zeros(1,res);
 fid_flag = zeros(1,res);
 
-for i = 1:res
-    [rho,psi] = Log0FlagSteane();
+parfor i = 1:res
+    [rho,psi] = LogStatePrep('Steane',LogState);
     rho = NbitState(rho);
     %X_L = BuildOpMat('XXXXXXX');
     %not_psi = X_L*psi;
@@ -29,22 +44,20 @@ for i = 1:res
     
     [r_flag,p_flag1] = FullFlagCorrection(rho,1,'X',cnot,had,zgate,xgate);
     [r_flag,p_flag2] = FullFlagCorrection(r_flag,1,'Z',cnot,had,xgate,zgate);
-    
-    rl_flag = LogStateSteane(r_flag);
+
     %r_shor = r_shor.rho;
-    r_flag = r_flag.rho;
     
     %fid_shor(i) = not_psi'*r_shor*not_psi;
-    fid_flag(i) = not_psi'*r_flag*not_psi;
-    fidL_flag(i) = Fid2(not_psi_L,rl_flag);
+    r_l = IdealDecode('Steane',r_flag);
+    fid_flag(i) = Fid2(n_psi,r_l);
+    
 end
 
 %% 5-qubit
 fid_5qubit = zeros(1,res);
 fid_L_5qubit = fid_5qubit;
 for i = 1:res
-    [rho,psi] = Log0FiveQubit();
-    rho = NbitState(rho);
+    [psi,rho] = LogStatePrep('5Qubit',LogState);
     X_L = BuildOpMat('XXXXX');
     
     not_psi = X_L*psi;
@@ -62,17 +75,16 @@ for i = 1:res
     [xgate,ygate,zgate,had] = SetDampCoeff(p,0,xgate,ygate,zgate,had);
     
     [r,p] = CorrectError5qubit(rho,1,cnot,had,zgate,xgate,ygate);
-    log_rho = LogState5Qubit(r);
-    R_L = r.rho;
-    fid_5qubit(i) = not_psi'*R_L*not_psi;
-    fid_L_5qubit(i) = Fid2(not_psi_L,log_rho);
+    r_l = IdealDecode('5Qubit',r);
+    fid_5qubit(i) = Fid2(n_psi,r_l);
+    
 end
 
 %% Surface-17
 fid_surf = zeros(1,res);
 fid_L_surf = fid_surf;
 parfor i = 1:res
-    [psi,rho] = Logical0Surf17();
+    [psi,rho] = LogStatePrep('Surf17',LogState);
     X_L = BuildOpMat('IIXIXIXII');
     not_psi = X_L*psi;
     not_psi_L = [0;1];
@@ -90,9 +102,8 @@ parfor i = 1:res
     [rho,~] = CorrectionCycle(rho,'X',cnot,had,xgate,zgate,0);
     [rho,~] = CorrectionCycle(rho,'Z',cnot,had,xgate,zgate,0);
     log_rho = LogStateSurf17(rho);
-    r_L = rho.rho;
-    fid_surf(i) = not_psi'*r_L*not_psi;
-    fid_L_surf(i) = Fid2(not_psi_L,log_rho);
+    r_l = IdealDecode('Surf17',rho);
+    fid_surf(i) = Fid2(n_psi,r_l);
 end
 %% Fidelity Plot
 figure();
@@ -107,27 +118,27 @@ set(gca,'xscale','log')
 set(gca,'yscale','log')
 legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
 xlabel('$p_{err}$')
-title('Error Fidelity')
+title('Error Fidelity |+>')
 h = gca;
 set(h.XLabel,'Interpreter','latex')
-ylabel('$\frac{1}{p^2}\cdot$ Logical Error Rate')
+ylabel('Failure Probability/Error Rate')
 set(h.YLabel,'Interpreter','latex')
 
 %% Logical Fidelity Plot
-figure();
-%plot(p_err,fid_shor./p_err.^2);
-hold on
-
-plot(p_err,fid_L_5qubit./p_err.^0)
-plot(p_err,fidL_flag./p_err.^0);
-plot(p_err,fid_L_surf./p_err.^0);
-plot(p_err,p_err.^(1));
-set(gca,'xscale','log')
-set(gca,'yscale','log')
-legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
-xlabel('$p_{err}$')
-title('Logical Error Fidelity')
-h = gca;
-set(h.XLabel,'Interpreter','latex')
-ylabel('$\frac{1}{p^2}\cdot$ Logical Error Rate')
-set(h.YLabel,'Interpreter','latex')
+% figure();
+% %plot(p_err,fid_shor./p_err.^2);
+% hold on
+% 
+% plot(p_err,fid_L_5qubit./p_err.^0)
+% plot(p_err,fidL_flag./p_err.^0);
+% plot(p_err,fid_L_surf./p_err.^0);
+% plot(p_err,p_err.^(1));
+% set(gca,'xscale','log')
+% set(gca,'yscale','log')
+% legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
+% xlabel('$p_{err}$')
+% title('Logical Error Fidelity')
+% h = gca;
+% set(h.XLabel,'Interpreter','latex')
+% ylabel('$\frac{1}{p^2}\cdot$ Logical Error Rate')
+% set(h.YLabel,'Interpreter','latex')

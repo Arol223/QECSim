@@ -7,7 +7,7 @@ had = HadamardGate(0,0);
 x = XGate(0,0);
 y = YGate(0,0);
 z = ZGate(0,0);
-
+rho_real = NbitState(rho_real.rho);
 switch code
     
     case 'Surf17'

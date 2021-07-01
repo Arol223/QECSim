@@ -5,7 +5,7 @@ function [psi,rho] = LogStatePrep(code, word)
 %   word - '0', '+'
 
 switch code
-    case 'Surf'
+    case 'Surf17'
         [psi_0, ~] = Logical0Surf17();
         X = BuildOpMat('IIXIXIXII');
     case '5Qubit'
