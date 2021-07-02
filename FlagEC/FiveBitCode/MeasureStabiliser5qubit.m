@@ -5,7 +5,7 @@ function [rho_out, p_out] = MeasureStabiliser5qubit(rho_in, block, ...
 t_init = rho_in.t_init; % Qubit init time
 e_init = rho_in.e_init; % Qubit init error
 p_out = 1; 
-e_ro = rho_in.t_ro; % Readout error
+e_ro = rho_in.e_ro; % Readout error
 sym = rho_in.sym_ro;
 [ancilla, t_ancilla] = FlagAncillaPrep(flagged,had,e_init,t_init);
 

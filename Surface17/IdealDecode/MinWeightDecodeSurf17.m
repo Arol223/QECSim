@@ -6,7 +6,7 @@ cnot = CNOTGate(0,0);
 had = HadamardGate(0,0);
 x = XGate(0,0);
 z = ZGate(0,0);
-
+rho_in = NbitState(rho_in.rho);
 rho_out = zeros(size(rho_in));
 rho_int = rho_out; %Intermediate
 for i = 0:15
@@ -18,7 +18,7 @@ for i = 0:15
     end
     rho_int = rho_int + ptmp*rtmp.rho;
 end
-rho_out = NbitState(rho_int);
+rho_int = NbitState(rho_int);
 for i = 0:15
     syn = dec2binvec(i,4);
     corr = MinWeightMatch('Z',syn);

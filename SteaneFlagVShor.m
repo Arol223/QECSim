@@ -1,6 +1,6 @@
 clear
 
-res = 3;
+res = 18;
 p_err = logspace(-4,-1,res);
 
 id_0 = [1;0];
@@ -8,6 +8,7 @@ id_1 = [0;1];
 id_plus = (1/sqrt(2))*(id_0 + id_1);
 id_min = (1/sqrt(2))*(id_0 - id_1);
 LogState = '0';
+T2Hf = 1e-3;
 
 switch LogState  %Determine what the wrong state is
     case '0'
@@ -33,7 +34,10 @@ parfor i = 1:res
     rho.e_init = p;
     rho.e_ro = p;
     rho.sym_ro = 1;
-    [cnot,cz,xgate,~,zgate,had] = MakeGates(0,0,0,0,0,0);
+    rho.T_2_hf = 1e-3;
+    rho.t_init = GateTime(p,0,1e-3);
+    rho.t_ro = GateTime(p,0,1e-3);
+    [cnot,cz,xgate,~,zgate,had] = MakeGates(0,0,0,0,0,1);
     [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
     [xgate,zgate,had] = SetDampCoeff(p,0,xgate,zgate,had);
     [xgate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate, zgate, had); 
@@ -67,14 +71,17 @@ for i = 1:res
     rho.e_init = p;
     rho.e_ro = p;
     rho.sym_ro = 1;
-    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,0);
+    rho.T_2_hf = 1e-3;
+    rho.t_init = GateTime(p,0,1e-3);
+    rho.t_ro = GateTime(p,0,1e-3);
+    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,1);
     [xgate,ygate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate,ygate, zgate, had); 
     [cnot,cz] = SetHomErr2QBG(p_cnot,cnot,cz);
     
     [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
     [xgate,ygate,zgate,had] = SetDampCoeff(p,0,xgate,ygate,zgate,had);
     
-    [r,p] = CorrectError5qubit(rho,1,cnot,had,zgate,xgate,ygate);
+    [r,~] = CorrectError5qubit(rho,1,cnot,had,zgate,xgate,ygate);
     r_l = IdealDecode('5Qubit',r);
     fid_5qubit(i) = Fid2(n_psi,r_l);
     
@@ -93,7 +100,10 @@ parfor i = 1:res
     rho.e_init = p;
     rho.e_ro = p;
     rho.sym_ro = 1;
-    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,0);
+    rho.T_2_hf = 1e-3;
+    rho.t_init = GateTime(p,0,1e-3);
+    rho.t_ro = GateTime(p,0,1e-3);
+    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,1);
     [xgate,ygate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate,ygate, zgate, had); 
     [cnot,cz] = SetHomErr2QBG(p_cnot,cnot,cz);
     [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
@@ -118,7 +128,7 @@ set(gca,'xscale','log')
 set(gca,'yscale','log')
 legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
 xlabel('$p_{err}$')
-title('Error Fidelity |+>')
+title('Failure Probability with Rest Error |+>')
 h = gca;
 set(h.XLabel,'Interpreter','latex')
 ylabel('Failure Probability/Error Rate')

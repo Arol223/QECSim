@@ -25,7 +25,7 @@ ancilla.init_all_zeros(1, e_init);  % Initialise ancilla bit
 if t_init && rho_in.T_2_hf
     % Idle error on data bits
     gamma_a = DampCoeff(t_init, rho_in.T_2_hf);
-    rho_out = idle_bits(rho_in,1:rho_in.nbits,0,gamma_a);   
+    rho_out = idle_bits(rho_in,1:rho_in.nbits,0,gamma_a);
 else
     rho_out = NbitState(rho_in.rho);
     rho_out.copy_params(rho_in);

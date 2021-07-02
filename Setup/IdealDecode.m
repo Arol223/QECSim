@@ -11,7 +11,8 @@ rho_real = NbitState(rho_real.rho);
 switch code
     
     case 'Surf17'
-        rho = MinWeightDecodeSurf17(rho_real);
+        rho = CorrectionCycle(rho_real,'X',cnot,had,x,z,0);
+        rho = CorrectionCycle(rho,'Z',cnot,had,x,z,0);
         rho = LogStateSurf17(rho);
         
     case 'Steane'
