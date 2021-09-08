@@ -38,17 +38,17 @@ for i  = check_syndromes
                             break
                         end
                     end
-%                     if ~found_flag_corr
-%                         err = str2num(FiveQubitCode.minimal_corrections(k+1,:));
-%                         if err(1) && err(2)
-%                             rtmp2 = ygate.apply(rtmp2,err(1));
-% 
-%                         elseif err(1)
-%                             rtmp2 = xgate.apply(rtmp2,err(1));
-%                         elseif err(2)
-%                             rtmp2 = zgate.apply(rtmp2, err(2));
-%                         end
-%                     end
+                    if ~found_flag_corr
+                        err = str2num(FiveQubitCode.minimal_corrections(k+1,:));
+                        if err(1) && err(2)
+                            rtmp2 = ygate.apply(rtmp2,err(1));
+
+                        elseif err(1)
+                            rtmp2 = xgate.apply(rtmp2,err(1));
+                        elseif err(2)
+                            rtmp2 = zgate.apply(rtmp2, err(2));
+                        end
+                    end
                 end
                 p = ptmp1*ptmp2;
                 p_out = p_out + p;

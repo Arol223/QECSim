@@ -1,14 +1,14 @@
 clear
 
 res = 18;
-p_err = logspace(-4,-1,res);
-
+p_err = logspace(-6,-2,res);
+inc_rest = 0;
 id_0 = [1;0];
 id_1 = [0;1];
 id_plus = (1/sqrt(2))*(id_0 + id_1);
 id_min = (1/sqrt(2))*(id_0 - id_1);
 LogState = '0';
-T2Hf = 1e-3;
+
 
 switch LogState  %Determine what the wrong state is
     case '0'
@@ -20,13 +20,19 @@ switch LogState  %Determine what the wrong state is
     case '-'
         n_psi = id_plus;
 end
+
+%% Parameters
+T_2_hf = 1e-3;%1e-3;   %Use these for memory errors (anonymous functions)
+t_init = @(p,T2) GateTime(p,0,T2);
+t_ro = @(p,T2) GateTime(p,0,T2);%GateTime(p,0,1e-3);
+
 %% Steane Code
 %fid_shor = zeros(1,res);
 fid_flag = zeros(1,res);
 
 parfor i = 1:res
-    [rho,psi] = LogStatePrep('Steane',LogState);
-    rho = NbitState(rho);
+    [psi,rho] = LogStatePrep('Steane',LogState);
+    %rho = NbitState(rho);
     %X_L = BuildOpMat('XXXXXXX');
     %not_psi = X_L*psi;
     p = p_err(i);
@@ -34,12 +40,24 @@ parfor i = 1:res
     rho.e_init = p;
     rho.e_ro = p;
     rho.sym_ro = 1;
-    rho.T_2_hf = 1e-3;
-    rho.t_init = GateTime(p,0,1e-3);
-    rho.t_ro = GateTime(p,0,1e-3);
-    [cnot,cz,xgate,~,zgate,had] = MakeGates(0,0,0,0,0,1);
-    [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
-    [xgate,zgate,had] = SetDampCoeff(p,0,xgate,zgate,had);
+    if inc_rest
+        rho.T_2_hf = T_2_hf;
+        t_rest = t_init(p,T_2_hf);
+        rho.t_init = t_init(p,T_2_hf); 
+        rho.t_ro = t_ro(p,T_2_hf); 
+        [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,t_rest,t_rest,0,1);
+        [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
+        [xgate,zgate,had] = SetDampCoeff(p,0,xgate,zgate,had);
+    else
+        rho.T_2_hf = 0;
+        rho.t_init = 0; %t_init(p,T_2_hf); 
+        rho.t_ro = 0; %t_ro(p,T_2_hf); 
+        [cnot,cz,xgate,~,zgate,had] = MakeGates(0,0,0,0,0,0);
+        [cnot,cz] = SetDampCoeff(0,0,cnot,cz);
+        [xgate,zgate,had] = SetDampCoeff(0,0,xgate,zgate,had);
+    end 
+
+    
     [xgate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate, zgate, had); 
     [cnot,cz] = SetHomErr2QBG(p_cnot,cnot,cz);
     
@@ -60,28 +78,43 @@ end
 %% 5-qubit
 fid_5qubit = zeros(1,res);
 fid_L_5qubit = fid_5qubit;
+fid_0_ro = fid_5qubit;
 for i = 1:res
     [psi,rho] = LogStatePrep('5Qubit',LogState);
     X_L = BuildOpMat('XXXXX');
-    
-    not_psi = X_L*psi;
+    Z_L = BuildOpMat('ZZZZZ');
+    not_psi_Z = X_L*psi;
+    not_psi_X = Z_L*psi;
     not_psi_L = [0 ;1];
     p = p_err(i);
     p_cnot = p;
     rho.e_init = p;
     rho.e_ro = p;
-    rho.sym_ro = 1;
-    rho.T_2_hf = 1e-3;
-    rho.t_init = GateTime(p,0,1e-3);
-    rho.t_ro = GateTime(p,0,1e-3);
-    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,1);
-    [xgate,ygate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate,ygate, zgate, had); 
-    [cnot,cz] = SetHomErr2QBG(p_cnot,cnot,cz);
+    rho.sym_ro = 1; %Symmetric readout
+    if inc_rest
+        rho.T_2_hf = T_2_hf;
+        t_rest = t_init(p,T_2_hf); 
+        rho.t_init = t_init(p,T_2_hf); 
+        rho.t_ro = t_ro(p,T_2_hf); 
+        [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,t_rest,t_rest,0,1);
+        [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
+        [xgate,ygate,zgate,had] = SetDampCoeff(p,0,xgate,ygate,zgate,had);
+    else
+        rho.T_2_hf = 0;
+        rho.t_init = 0; %t_init(p,T_2_hf); 
+        rho.t_ro = 0; %t_ro(p,T_2_hf); 
+        [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,0);
+        [cnot,cz] = SetDampCoeff(0,0,cnot,cz);
+        [xgate,ygate,zgate,had] = SetDampCoeff(0,0,xgate,ygate,zgate,had);
+    end 
+
+
+    [xgate,ygate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate,ygate, zgate, had); %should be p/3
+    [cnot,cz] = SetHomErr2QBG(p,cnot,cz); %should be p_cnot
     
-    [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
-    [xgate,ygate,zgate,had] = SetDampCoeff(p,0,xgate,ygate,zgate,had);
+
     
-    [r,~] = CorrectError5qubit(rho,1,cnot,had,zgate,xgate,ygate);
+    [r,p_out] = CorrectError5qubit(rho,1,cnot,had,zgate,xgate,ygate);
     r_l = IdealDecode('5Qubit',r);
     fid_5qubit(i) = Fid2(n_psi,r_l);
     
@@ -100,14 +133,27 @@ parfor i = 1:res
     rho.e_init = p;
     rho.e_ro = p;
     rho.sym_ro = 1;
-    rho.T_2_hf = 1e-3;
-    rho.t_init = GateTime(p,0,1e-3);
-    rho.t_ro = GateTime(p,0,1e-3);
-    [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,1);
+    if inc_rest
+        rho.T_2_hf = T_2_hf;
+        t_rest = t_init(p,T_2_hf);
+        rho.t_init = t_init(p,T_2_hf); 
+        rho.t_ro = t_ro(p,T_2_hf); 
+        [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,t_rest,t_rest,0,1);
+        [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
+        [xgate,zgate,had] = SetDampCoeff(p,0,xgate,zgate,had);
+    else
+        rho.T_2_hf = T_2_hf;
+        rho.t_init = 0; %t_init(p,T_2_hf); 
+        rho.t_ro = 0; %t_ro(p,T_2_hf); 
+        [cnot,cz,xgate,ygate,zgate,had] = MakeGates(0,0,0,0,0,0);
+        [cnot,cz] = SetDampCoeff(0,0,cnot,cz);
+        [xgate,zgate,had] = SetDampCoeff(0,0,xgate,zgate,had);
+    end 
+
+
     [xgate,ygate,zgate,had] = SetErrDiff(p/3,p/3,p/3, xgate,ygate, zgate, had); 
     [cnot,cz] = SetHomErr2QBG(p_cnot,cnot,cz);
-    [cnot,cz] = SetDampCoeff(p,0,cnot,cz);
-    [xgate,zgate,had] = SetDampCoeff(p,0,xgate,zgate,had);
+
     
     [rho,~] = CorrectionCycle(rho,'X',cnot,had,xgate,zgate,0);
     [rho,~] = CorrectionCycle(rho,'Z',cnot,had,xgate,zgate,0);
@@ -124,16 +170,18 @@ plot(p_err,fid_5qubit./p_err.^0)
 plot(p_err,fid_flag./p_err.^0);
 plot(p_err,fid_surf./p_err.^0);
 plot(p_err,p_err.^(1));
+plot(p_err,p_err.^(2));
 set(gca,'xscale','log')
 set(gca,'yscale','log')
-legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}')
+legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}','p_{err}^2')
 xlabel('$p_{err}$')
-title('Failure Probability with Rest Error |+>')
+title('Failure Probability without Rest Error |0>')
 h = gca;
 set(h.XLabel,'Interpreter','latex')
 ylabel('Failure Probability/Error Rate')
 set(h.YLabel,'Interpreter','latex')
 
+%save('PseudoThreshold/FailureProbHiRes_RestErr')
 %% Logical Fidelity Plot
 % figure();
 % %plot(p_err,fid_shor./p_err.^2);
@@ -152,3 +200,4 @@ set(h.YLabel,'Interpreter','latex')
 % set(h.XLabel,'Interpreter','latex')
 % ylabel('$\frac{1}{p^2}\cdot$ Logical Error Rate')
 % set(h.YLabel,'Interpreter','latex')
+ 

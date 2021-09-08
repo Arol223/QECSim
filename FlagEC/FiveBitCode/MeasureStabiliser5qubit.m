@@ -37,7 +37,7 @@ for i = 1:length(order)
             rho_out = cnot.apply(rho_out,1,c);
         case 'A'
             if flagged
-                rho_out = cnot.apply(rho_out, 1, 2); % Couple flag with measurement ancilla                
+                rho_out = cnot.apply(rho_out, 1, c); % Couple flag with measurement ancilla                
             end
     end
 end
