@@ -244,7 +244,8 @@ classdef TwoBitGate < handle
                 % Idles all bits even for sequential operations.
                 c_bit = obj.damp_coeff(2);
                 c_phase = obj.damp_coeff(1);
-                idles = [1:target-1, target+1:nbits];
+                idles = 1:nbits;
+                idles([target control]) = [];
                 res = idle_bits(res, idles, c_bit,c_phase);
             end
             
