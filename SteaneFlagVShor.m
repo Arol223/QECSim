@@ -134,13 +134,15 @@ plot(p_err,p_err.^(1));
 plot(p_err,p_err.^(2));
 set(gca,'xscale','log')
 set(gca,'yscale','log')
-legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','p_{err}','p_{err}^2')
+legend('[[5,1,3]] - flag','[[7,1,3]] - flag','[[9,1,3]] (Surface-17)','$p_{err}$','$p_{err}^2$')
 xlabel('$p_{err}$')
-title('Failure Probability without Rest Error |+>')
+title('Average logical error rate with resting error')
 h = gca;
 set(h.XLabel,'Interpreter','latex')
 ylabel('Failure Probability/Error Rate')
 set(h.YLabel,'Interpreter','latex')
+set(h.title,'Interpreter','latex')
+set(h.legend,'Interpreter','latex')
 
 %save('PseudoThreshold/FailureProbHiRes_RestErr')
 %% Logical Fidelity Plot
