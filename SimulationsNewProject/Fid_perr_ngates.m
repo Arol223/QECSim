@@ -2,7 +2,7 @@ clear
 clear GLOBAL
 %% Set p_err, resolution and ngates
 n_points = 18;
-g_max = 50; % Max number of gates
+g_max = 500; % Max number of gates
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0); %Gate objects
 p_err = logspace(-4,-2,n_points);
 ngates = round(linspace(1,g_max,n_points));
@@ -113,9 +113,9 @@ parfor i = 1:n_points
         
         
         if mod(gt_counts,2)
-            psiL = n_psi;
-        else
             psiL = psi_p;
+        else
+            psiL = n_psi;
         end
         r_l = IdealDecode('Steane',rtmp1);
         p_errL_flagSteane(j,i) = Fid2(psiL,r_l); %Logical fidelity
@@ -170,9 +170,9 @@ parfor i = 1:n_points
         [rtmp1,pout] = CorrectError5qubit(rtmp,1,cnot,hadgate,zgate,xgate,ygate);
 
         if mod(gt_counts,2)
-            psiL = n_psi;
-        else
             psiL = psi_p;
+        else
+            psiL = n_psi;
         end
         r_l = IdealDecode('5Qubit',rtmp1);
         p_errL_5qubit(j,i) = Fid2(psiL,r_l); %Logical fidelity
@@ -226,9 +226,9 @@ parfor i = 1:n_points
         rtmp1 = CorrectionCycle(rtmp1,'Z',cnot,hadgate,xgate,zgate,p^2*1e-3);
         
         if mod(gt_counts,2)
-            psiL = n_psi;
-        else
             psiL = psi_p;
+        else
+            psiL = n_psi;
         end
         r_l = IdealDecode('Surf17',rtmp1);
         p_errL_surf17(j,i) = Fid2(psiL,r_l); %Logical fidelity
@@ -238,7 +238,7 @@ end
 
 gain_logerr_surf17 = p_errL_phys./p_errL_surf17;
 
-save('NoShor6x6')
+save('NoShor18x18')
 %%
 % p_err_tot = 2*p_err;
 % bottom = min(min(min(gain_5qubit1)),min(min(gain_flag)));

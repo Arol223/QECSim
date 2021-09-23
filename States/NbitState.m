@@ -220,6 +220,9 @@ classdef NbitState < handle
         end
         function normalise(obj)
             tr = trace(obj.rho);
+            if ~isreal(tr)
+                tr = real(tr);
+            end
             if tr %prevent division by zero
                 obj.rho = obj.rho./trace(obj.rho);
             end
