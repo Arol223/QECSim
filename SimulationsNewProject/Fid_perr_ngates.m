@@ -1,11 +1,15 @@
 clear
 clear GLOBAL
 %% Set p_err, resolution and ngates
-n_points = 18;
+n_points_p = 24;
+n_points_g = 18;
 g_max = 500; % Max number of gates
 [cnot,cz,xgate,ygate,zgate,hadgate] = MakeGates(0,0,7.7e-6,3.36e-6,0,0); %Gate objects
-p_err = logspace(-4,-2,n_points);
-ngates = round(linspace(1,g_max,n_points));
+%p_err = [logspace(-5,-4,(16+2)/2) logspace(-2, -1,(16+2)/2)];
+%p_err(9:10) = [];
+%p_err = [p_err(1:8) logspace(-4,-2,18) p_err(9:end)];
+p_err = logspace(-5,-1,n_points_p);
+ngates = round(linspace(1,g_max,n_points_g));
 
 
 
@@ -71,9 +75,8 @@ p_errL_phys = fid_phys;
 
 
 ngates = [1 ngates];
-fid_EC_flag_Steane = zeros(length(p_err));
-p_errL_flagSteane = zeros(length(p_err));
-parfor i = 1:n_points
+p_errL_flagSteane = zeros(n_points_g,n_points_p);
+parfor i = 1:n_points_p
     
     [psi_l,rho_l] = LogStatePrep('Steane',LogState);
     rho_l.set_t_ro(0); % Set readout time for state
@@ -89,8 +92,8 @@ parfor i = 1:n_points
     cz.set_err_hom(p_tqbg);
     zgate.set_err(p_sqbg,p_sqbg,p_sqbg);
     hadgate.set_err(p_sqbg,p_sqbg,p_sqbg);
-    rho_l.set_e_ro(1e-5);
-    rho_l.set_e_init(1e-4);
+    rho_l.set_e_ro(2*p_sqbg);
+    rho_l.set_e_init(2*p_sqbg);
     [cnot,cz] = SetDampCoeff(p,0, cnot, cz); % Sets damping for 2QBG
     [xgate, zgate,ygate, hadgate] = SetDampCoeff(p,0, xgate, zgate,ygate, hadgate);
     
@@ -101,7 +104,7 @@ parfor i = 1:n_points
     psi_tmp = psi_l;
     gt_counts = 0;
     L = length(ngates)-1;
-    for j = 1:n_points
+    for j = 1:n_points_g
        
         for k = ngates(j):ngates(j+1)-1
              rtmp = SteaneLogicalGate(rtmp,xgate,1);
@@ -122,12 +125,13 @@ parfor i = 1:n_points
     end
     
 end
-
+%%
 gain_log_flagSteane = p_errL_phys./p_errL_flagSteane;
 
 %% 5-qubit
-p_errL_5qubit = zeros(length(p_err));
-parfor i = 1:n_points
+p_errL_5qubit = zeros(n_points_g,n_points_p);
+%ngates = [1 ngates];
+parfor i = 1:n_points_p
     
     [psi_l,rho_l] = LogStatePrep('5Qubit',LogState);
     rho_l.set_t_ro(0); % Set readout time for state
@@ -148,8 +152,8 @@ parfor i = 1:n_points
     cz.set_err_hom(p_tqbg);
     zgate.set_err(p_sqbg,p_sqbg,p_sqbg);
     hadgate.set_err(p_sqbg,p_sqbg,p_sqbg);
-    rho_l.set_e_ro(1e-5);
-    rho_l.set_e_init(1e-4);
+    rho_l.set_e_ro(2*p_sqbg);
+    rho_l.set_e_init(2*p_sqbg);
     [cnot,cz] = SetDampCoeff(p,0, cnot, cz); % Sets damping for 2QBG
     [xgate, zgate,ygate, hadgate] = SetDampCoeff(p,0, xgate, zgate,ygate, hadgate);
     
@@ -160,7 +164,7 @@ parfor i = 1:n_points
     psi_tmp = psi_l;
     gt_counts = 0;
     L = length(ngates) - 1;
-    for j = 1:n_points
+    for j = 1:n_points_g
        
         for k = ngates(j):ngates(j+1)-1
              rtmp = LogGate5Qubit(rtmp,'X',1,xgate,ygate,zgate);
@@ -182,8 +186,8 @@ end
 %%
 gain_log5qubit2 = p_errL_phys./p_errL_5qubit;
 %% Surf17
-p_errL_surf17 = zeros(length(p_err));
-parfor i = 1:n_points
+p_errL_surf17 = zeros(n_points_g,n_points_p);
+parfor i = 1:n_points_p
     
     [psi_l,rho_l] = LogStatePrep('Surf17',LogState);
     rho_l.set_t_ro(0); % Set readout time for state
@@ -203,8 +207,8 @@ parfor i = 1:n_points
     cz.set_err_hom(p_tqbg);
     zgate.set_err(p_sqbg,p_sqbg,p_sqbg);
     hadgate.set_err(p_sqbg,p_sqbg,p_sqbg);
-    rho_l.set_e_ro(1e-5);
-    rho_l.set_e_init(1e-4);
+    rho_l.set_e_ro(2*p_sqbg);
+    rho_l.set_e_init(2*p_sqbg);
     [cnot,cz] = SetDampCoeff(p,0, cnot, cz); % Sets damping for 2QBG
     [xgate, zgate,ygate, hadgate] = SetDampCoeff(p,0, xgate, zgate,ygate, hadgate);
     
@@ -215,7 +219,7 @@ parfor i = 1:n_points
     psi_tmp = psi_l;
     gt_counts = 0;
     L = length(ngates) - 1;
-    for j = 1:n_points
+    for j = 1:n_points_g
        
         for k = ngates(j):ngates(j+1)-1
              rtmp = xgate.apply(rtmp,[3 5 7]);
@@ -238,7 +242,7 @@ end
 
 gain_logerr_surf17 = p_errL_phys./p_errL_surf17;
 
-save('NoShor18x18')
+save('new_zero_24x18_2')
 %%
 % p_err_tot = 2*p_err;
 % bottom = min(min(min(gain_5qubit1)),min(min(gain_flag)));
@@ -254,3 +258,4 @@ save('NoShor18x18')
 % shading interp;
 % caxis manual;
 % caxis([bottom top]);
+

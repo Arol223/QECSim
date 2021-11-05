@@ -16,12 +16,12 @@ t_init = 10e-6; % 10 us init time
 t_dur_SQBG = 5e-6; % From adams paper (seems approx right)
 t_dur_2QBG = 10e-6; % Should be reasonable, 2QBG uses 4 times as many pulses
 
-p_SQBG = 3.4e-4*1.5; %From Adams paper, 1.5 is to compensate for fid<perr 
+p_SQBG = 1e-4; %From Adams paper, 1.5 is to compensate for fid<perr 
 e_init = p_SQBG*(2./3);
 %p_b_SQBG = DampCoeff(t_dur_SQBG, T_1_opt); % p of bitflip error for SQBG
 %p_p_SQBG = DampCoeff(t_dur_SQBG, T_2_opt); % -||- phaseflip
 
-p_tqbg = 1.25*3e-3; %From Adams paper, 1.25 is to account for fidelity <p_err
+p_tqbg = 1e-3; %From Adams paper, 1.25 is to account for fidelity <p_err
 e_ro = e_init; %  1e-5 Readout error
 %p_b_2QBG = DampCoeff(t_dur_2QBG, T_1_opt);
 %p_p_2QBG = DampCoeff(t_dur_2QBG, T_2_opt);
@@ -32,7 +32,7 @@ id_0 = [1;0];
 id_1 = [0;1];
 id_plus = (1/sqrt(2))*(id_0 + id_1);
 id_min = (1/sqrt(2))*(id_0 - id_1);
-LogState = '0';
+LogState = '+';
 
 
 switch LogState  %Determine what the wrong state is
@@ -49,10 +49,6 @@ end
 
 %% 
 fid_l = zeros(1,length(T_2_spin)); % Fidelities for plotting
-fid_flag_steane = fid_l;
-fid_5qubit = fid_l;
-fid_surf17 = fid_l;
-
 fid_log_FlagSteane = fid_l;
 fid_log_5qubit = fid_l;
 fid_log_surf17 = fid_l;
@@ -193,4 +189,4 @@ ylabel('Logical Error Fidelity')
 xlabel('T_{2, spin}/T_{2, optical}')
 title('Error Fidelity and Fidelity Error')
 
-save('final_0')
+save('final_+')
